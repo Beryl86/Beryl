@@ -1,0 +1,8 @@
+AGE	HEIGHT	WEIGHT	CHOL	SMOKE	BLOOD	MORT
+20	176	77	195	nonsmo	b	alive
+53	167	56	250	sigare	o	dead
+44	170	80	304	sigare	a	dead
+37	173	89	178	nonsmo	o	alive
+26	170	71	206	sigare	o	alive
+41	165	62	284	sigare	o	alive
+39	174	75	232	sigare	o	alive
