@@ -1,0 +1,706 @@
+---
+title: "Lecture 7: Special Theoretical Probability Distributions"
+author: "Ms. Beryl Ang'iro"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introduction
+
+Special theoretical probability distributions are theoretical distributions which are not obtained directly from actual experiments. They are deduced mathematically on the basis of certain assumptions, and are broadly classified into:
+
+- **Discrete probability distributions**
+- **Continuous probability distributions**
+
+---
+
+# Discrete Probability Distributions
+
+## Discrete Uniform Distribution
+
+A random variable $X$ has a **discrete uniform distribution** if:
+
+$$f(x) = \begin{cases} \frac{1}{N}, & x = 1, 2, 3, \ldots, N \\ 0, & \text{otherwise} \end{cases}$$
+
+### Mean
+
+$$E(X) = \sum_{x=1}^{N} x \cdot f(x) = \sum_{x=1}^{N} x \cdot \frac{1}{N} = \frac{1}{N} \sum_{x=1}^{N} x$$
+
+$$= \frac{1}{N} \cdot \frac{N(N+1)}{2} = \frac{N+1}{2}$$
+
+$$\therefore \text{Mean} = \frac{N+1}{2}$$
+
+### Variance
+
+$$\text{Var}(X) = \sigma^2 = E(X^2) - [E(X)]^2$$
+
+$$E(X^2) = \sum_{x=1}^{N} x^2 \cdot \frac{1}{N} = \frac{1}{N} \cdot \frac{N(N+1)(2N+1)}{6} = \frac{(N+1)(2N+1)}{6}$$
+
+$$\text{Var}(X) = \frac{(N+1)(2N+1)}{6} - \left(\frac{N+1}{2}\right)^2 = \frac{N^2 - 1}{12}$$
+
+$$\boxed{\text{Var}(X) = \frac{N^2 - 1}{12}}$$
+
+### Moment Generating Function
+
+$$M_X(t) = E(e^{tX}) = \sum_{x=1}^{N} e^{tx} \cdot \frac{1}{N} = \frac{1}{N}[e^t + e^{2t} + \cdots + e^{Nt}]$$
+
+$$= \frac{e^t(1 - e^{Nt})}{N(1 - e^t)}$$
+
+---
+
+## Bernoulli Distribution
+
+A **Bernoulli trial** is a random experiment with only two mutually exclusive outcomes: success or failure. Let:
+
+$$X = \begin{cases} 1, & \text{outcome is a success} \\ 0, & \text{outcome is a failure} \end{cases}$$
+
+The distribution is characterised by a single parameter $p$, where $p = \Pr(\text{success})$ and $q = 1 - p = \Pr(\text{failure})$.
+
+$$P(X = x) = \begin{cases} p^x(1-p)^{1-x}, & x = 0, 1 \\ 0, & \text{otherwise} \end{cases}$$
+
+### Proof that $f(x)$ is a pmf
+
+$$\sum_{x=0}^{1} f(x) = p^0 q^1 + p^1 q^0 = q + p = 1 \checkmark$$
+
+### Mean
+
+$$E(X) = \sum_{x=0}^{1} x \cdot P(X = x) = 0 \cdot (1-p) + 1 \cdot p = p$$
+
+### Variance
+
+$$E(X^2) = 0^2 \cdot (1-p) + 1^2 \cdot p = p$$
+
+$$\text{Var}(X) = E(X^2) - [E(X)]^2 = p - p^2 = p(1-p)$$
+
+### Moment Generating Function
+
+$$M_X(t) = E[e^{tX}] = \sum_{x=0}^{1} e^{tx} p^x (1-p)^{1-x} = (1-p) + pe^t = q + pe^t$$
+
+---
+
+## Binomial Distribution
+
+The **binomial distribution** arises when we count the number of successes in $n$ independent trials, each with probability of success $p$.
+
+$$f(x) = \begin{cases} \binom{n}{x} p^x q^{n-x}, & x = 0, 1, 2, \ldots, n \\ 0, & \text{elsewhere} \end{cases}$$
+
+We write $X \sim \text{Bin}(n, p)$.
+
+### Proof that $f(x)$ is a pmf
+
+$$\sum_{x=0}^{n} \binom{n}{x} p^x q^{n-x} = (p+q)^n = 1 \checkmark$$
+
+### Moment Generating Function
+
+$$M_X(t) = E(e^{tX}) = \sum_{x=0}^{n} \binom{n}{x} (pe^t)^x q^{n-x}$$
+
+Applying the binomial expansion with $a = q$ and $b = pe^t$:
+
+$$\boxed{M_X(t) = (q + pe^t)^n}$$
+
+### Mean
+
+$$M_X'(t) = npe^t(q + pe^t)^{n-1}$$
+
+$$M_X'(0) = np(p+q)^{n-1} = np$$
+
+$$\therefore \textbf{Mean} = np$$
+
+### Variance
+
+Using the product rule on $M_X'(t)$:
+
+$$M_X''(t) = npe^t(q + pe^t)^{n-2}(q + npe^t)$$
+
+$$M_X''(0) = np(q + np) = npq + n^2p^2$$
+
+$$\text{Var}(X) = M_X''(0) - [M_X'(0)]^2 = (npq + n^2p^2) - (np)^2 = npq$$
+
+$$\boxed{\text{Var}(X) = npq}$$
+
+### Examples
+
+**Example 1.** The binomial distribution with $n = 7$, $p = \frac{1}{2}$:
+
+$$f(x) = \binom{7}{x} \left(\frac{1}{2}\right)^7, \quad x = 0,1,\ldots,7$$
+
+$$E(X) = 7 \cdot \frac{1}{2} = \frac{7}{2}, \qquad \text{Var}(X) = 7 \cdot \frac{1}{2} \cdot \frac{1}{2} = \frac{7}{4}$$
+
+$$P(0 \leq X \leq 1) = \frac{1}{128} + \frac{7}{128} = \frac{8}{128}, \qquad P(X = 5) = \frac{21}{128}$$
+
+**Example 2.** A marksman hits a target with probability $p = \frac{5}{6}$. He fires 9 shots. $X \sim \text{Bin}(9, \frac{5}{6})$.
+
+(i) $P(X \geq 7) = P(X=7) + P(X=8) + P(X=9) = 0.822$
+
+(ii) $P(X \leq 6) = 1 - P(X \geq 7) = 1 - 0.822 = 0.178$
+
+(iii) Number of ways to hit exactly 6 times: $\binom{9}{6} = 84$. Three successive misses can occur in 7 ways (positions 1-3, 2-4, …, 7-9).
+$$P = \frac{7}{84} = \frac{1}{12}$$
+
+**Example 3.** Four coins tossed simultaneously. $X \sim \text{Bin}(4, \frac{1}{2})$.
+
+(i) $P(X = 0) = \frac{1}{16} = 0.0625$
+
+(ii) $P(X = 1) = \frac{4}{16} = 0.25$
+
+(iii) $P(X \geq 1) = 1 - P(X=0) = 1 - \frac{1}{16} = 0.9375$
+
+**Example 4.** 10% of production is defective. $X \sim \text{Bin}(10, 0.1)$.
+
+$$P(X = 2) = \binom{10}{2}(0.1)^2(0.9)^8 = 0.1937$$
+$$P(X \geq 2) = 1 - [P(X=0) + P(X=1)] = 0.264$$
+
+### Binomial Exercises
+
+1. If the MGF of $X$ is $\left(\frac{1}{3} + \frac{2}{3}e^t\right)^5$, find $E(X)$ and $\text{Var}(X)$.
+
+2. Let $Y$ be the number of successes in $n$ independent repetitions with probability of success $p$. Find the smallest $n$ such that $P(Y \geq 1) \geq 0.95$. **[5]**
+
+3. Let $X \sim \text{Bin}(2, p)$ and $Y \sim \text{Bin}(4, p)$. If $P(X \geq 1) = \frac{5}{9}$, find $P(Y \geq 1)$.
+
+4. 90% of students entering a diploma course successfully complete it. 15 students commence the course. Find the probability that:
+   (i) All 15 successfully complete the course. **[0.206]**
+   (ii) Only 1 student fails. **[0.343]**
+   (iii) No more than 2 students fail. **[0.816]**
+   (iv) At least 2 students fail. **[0.451]**
+
+5. A company has ten telephone lines. The probability that any particular line is engaged is $p = 0.2$. Find the expected number of free lines **[8]** and calculate:
+   (i) All lines engaged. **[0.0000001]**
+   (ii) At least one line is free. **[1]**
+   (iii) Exactly two lines are free. **[0.000074]**
+
+6. 10% of glasses made by a machine are defective. A sample of 10 is selected. Find the probability that none are defective and the expected number of defectives. **[0.349, 1]**
+
+7. Bolts are shipped in lots of 20. Each bolt is defective with probability 0.05.
+   (a) Expected number of defectives per lot. **[1]**
+   (b) Probability that a lot contains no defectives. **[0.358]**
+
+8. You receive 10 lots from the manufacturer in question 7.
+   (a) Expected number of lots with no defectives. **[3.58]**
+   (b) Probability of no defectives in all 10 lots. **[0.000035]**
+
+9. Probability that a pen drawn from a box is defective is 0.1. A sample of 6 pens is taken. Find the probability it contains:
+   (i) Exactly 5 or 6 defective pens.
+   (ii) More than 2 defective pens.
+   (iii) Less than 3 defective pens.
+
+---
+
+## Poisson Distribution
+
+A discrete random variable $X$ has a **Poisson distribution** if:
+
+$$\Pr(X = x) = f(x) = \frac{e^{-\lambda} \lambda^x}{x!}, \quad x = 0, 1, 2, 3, \ldots$$
+
+We write $X \sim \text{Po}(\lambda)$, where $\lambda > 0$ is the parameter.
+
+**Poisson Recurrence Formula:**
+
+$$\Pr(X = x+1) = \frac{\lambda}{x+1} \Pr(X = x), \quad x = 0, 1, 2, \ldots$$
+
+### Uses
+
+1. **Estimation** of probabilities of rare events (e.g., telephone calls at a switchboard, insurance claims, accidents, flaws in manufactured material).
+2. **Approximation to the Binomial** with the same mean $\lambda = np$, when $n > 50$ and $p < 0.1$.
+
+### Moment Generating Function
+
+$$M_X(t) = E(e^{tX}) = \sum_{x=0}^{\infty} e^{tx} \cdot \frac{e^{-\lambda}\lambda^x}{x!} = e^{-\lambda} \sum_{x=0}^{\infty} \frac{(\lambda e^t)^x}{x!}$$
+
+$$= e^{-\lambda} \cdot e^{\lambda e^t}$$
+
+$$\boxed{M_X(t) = e^{\lambda(e^t - 1)}}$$
+
+### Mean
+
+$$M_X'(t) = \lambda e^t \cdot e^{\lambda(e^t - 1)}$$
+
+$$M_X'(0) = \lambda e^0 \cdot e^{\lambda(1-1)} = \lambda$$
+
+$$\therefore \textbf{Mean} = \lambda$$
+
+### Variance
+
+Using the product rule on $M_X'(t)$:
+
+$$M_X''(t) = \lambda e^t e^{\lambda(e^t-1)}[1 + \lambda e^t]$$
+
+$$M_X''(0) = \lambda(1)(1)[1 + \lambda] = \lambda + \lambda^2$$
+
+$$\text{Var}(X) = M_X''(0) - [M_X'(0)]^2 = (\lambda + \lambda^2) - \lambda^2 = \lambda$$
+
+$$\boxed{\text{For a Poisson distribution: Mean} = \lambda = \text{Var}(X)}$$
+
+### Poisson or Binomial?
+
+Given a frequency distribution, the decision between Poisson and binomial is often made by comparing the **mean and variance**. The closer these two values are, the more likely a Poisson distribution applies.
+
+### Additive Property
+
+If $X \sim \text{Po}(x)$ and $Y \sim \text{Po}(y)$, then $X + Y \sim \text{Po}(x + y)$.
+
+### Examples
+
+**Example 1.** Telephone calls arrive at a switchboard at 50 per hour. Find the probabilities of 0, 1, or 2 calls in any 5-minute period.
+
+Average rate per 5 minutes: $\lambda = \frac{50}{12} = 4.17$. So $X \sim \text{Po}(4.17)$.
+
+$$P(X=0) = \frac{e^{-4.17}(4.17)^0}{0!} = 0.02$$
+$$P(X=1) = \frac{e^{-4.17}(4.17)^1}{1!} = 0.06$$
+$$P(X=2) = \frac{e^{-4.17}(4.17)^2}{2!} = 0.13$$
+
+**Example 2.** A professor has probability 0.001 of being late to any class. In 100 classes, $X \sim \text{Bin}(100, 0.001)$, approximated by $\text{Po}(\mu = np = 0.1)$.
+
+$$P(X=0) = \frac{e^{-0.1}(0.1)^0}{0!} = 0.9048$$
+$$P(X=1) = \frac{e^{-0.1}(0.1)^1}{1!} = 0.0905$$
+
+These match the exact binomial probabilities very closely.
+
+**Example 3.** External calls arrive at rate 1 per 5 minutes; internal calls at rate 2 per 5 minutes.
+
+Per 2-minute period: $E \sim \text{Po}(0.4)$, $I \sim \text{Po}(0.8)$.
+
+By the additive property: $E + I \sim \text{Po}(1.2)$.
+
+$$P(E+I > 2) = 1 - [P(0) + P(1) + P(2)]$$
+$$= 1 - \left[e^{-1.2} + 1.2e^{-1.2} + \frac{1.44}{2}e^{-1.2}\right]$$
+
+**Example 4.** Calls per 10 minutes follow $\text{Po}(0.6)$.
+
+(a) $P(X=0) = e^{-0.6} = 0.55$
+
+(b) For 40 minutes: $X' \sim \text{Po}(0.6 \times 4) = \text{Po}(2.4)$.
+$$P(X' > 2) = 1 - [P(0) + P(1) + P(2)] = 0.430$$
+
+**Example 5.** A hospital admits 50 patients per day; 3% require special rooms. Using the Poisson approximation with $\lambda = np = 50 \times 0.03 = 1.5$:
+
+$$P(X > 3) = 1 - [P(0) + P(1) + P(2) + P(3)] = 0.0638$$
+
+### Poisson Exercises
+
+1. Calls arrive randomly at 24 per hour. Find:
+   (a) Probability of no calls in 5 minutes. **[0.135]**
+   (b) Probability of more than 4 calls in 5 minutes. **[0.0527]**
+
+2. Bacteria in 1 ml of inoculum follow $\text{Po}(2)$. Find the probability that at least 3 bacteria are present (dose is ineffective). **[0.143]**
+
+3. A manufactured cloth has type A flaws with mean 0.5/m and type B flaws with mean 1/m, independently Poisson distributed.
+   (a) Probability that 1 metre has: (i) 2 or fewer type A flaws **[0.986]**, (ii) no flaws of either type **[0.223]**.
+   (b) Show that the probability of exactly 1 flaw is exactly three times that of 1 flaw of each type.
+   (c) Removing a type A flaw costs 8p and a type B flaw costs 2p. Find the mean and standard deviation of removal cost per metre. **[mean = 6, s.d. = 2.45]**
+
+4. Radio resistors are defective with probability 0.2%. Sold in lots of 100 with a no-defective guarantee. What is the probability a lot violates the guarantee? **[0.181]**
+
+5. Beer packages are removed at 10 per hour during rush periods. Find:
+   (a) $P(\geq 1 \text{ removed in first 6 minutes})$ **[0.6321]**
+   (b) $P(\geq 1 \text{ removed in each of 3 consecutive 6-minute intervals})$ **[0.2526]**
+
+6. Accidents occur at rate 1 every 2 months. Find the expected number per year, its standard deviation, and $P(\text{no accidents in a given month})$. **[6, 2.45, 0.61]**
+
+7. A used car salesman makes sales as a Poisson process with rate $\lambda = 2$ per week. Find:
+   $P(X = 3)$ in 2 weeks, $P(X \geq 3)$, $P(X \leq 3)$. **[0.1804, 0.3233, 0.8571]**
+
+8. A factory packs bolts in boxes of 500. The probability that a bolt is defective is 0.002. Find the probability that a box contains exactly 2 defective bolts.
+
+9. The mean number of bacteria per ml is 4 ($\text{Po}(4)$). Find:
+   (a) In 1 ml: (i) $P(\text{no bacteria})$, (ii) $P(4 \text{ bacteria})$.
+   (b) In 3 ml: $P(\text{less than 2 bacteria})$.
+   (c) In $\frac{1}{2}$ ml: $P(\text{more than 2 bacteria})$.
+
+---
+
+## Hypergeometric Distribution
+
+The **hypergeometric distribution** arises in **sampling without replacement**. A box contains $N$ items, $m$ of which are defective. In a sample of $n$ items drawn **without replacement**:
+
+$$f(x) = \frac{\binom{m}{x}\binom{N-m}{n-x}}{\binom{N}{n}}, \quad x = 0, 1, 2, \ldots, n$$
+
+**Note:** In sampling *with* replacement, the binomial distribution applies with $p = m/N$.
+
+### Mean and Variance
+
+$$\mu = \frac{nm}{N}, \qquad \sigma^2 = \frac{nm(N-m)(N-n)}{N^2(N-1)}$$
+
+### Examples
+
+**Example 1.** A carton contains 20 fuses, 5 defective. A sample of 3 is chosen without replacement. Here $N=20$, $m=5$, $N-m=15$, $n=3$.
+
+$$f(0) = \frac{\binom{5}{0}\binom{15}{3}}{\binom{20}{3}} = \frac{91}{228}, \quad f(1) = \frac{35}{76}, \quad f(2) = \frac{5}{38}, \quad f(3) = \frac{1}{114}$$
+
+**Example 2.** A box has 20 spare parts: 15 good, 5 defective. 4 parts are selected at random. $P(X = 3)$ where $X$ is the number of good parts.
+
+$$P(X=3) = \frac{\binom{15}{3}\binom{5}{1}}{\binom{20}{4}} = 0.4696$$
+
+**Example 3.** A basket has 50 white and 45 black balls ($N = 50$, $m = 5$). Draw 10 without replacement. $P(4 \text{ white})$:
+
+$$P(X=4) = \frac{\binom{5}{4}\binom{45}{6}}{\binom{50}{10}} = 0.0396$$
+
+### Hypergeometric Exercises
+
+1. A box contains 5 marbles, 3 are chipped. Two are chosen without replacement. Find the probability function for the number of chipped marbles.
+
+2. A panel of 7 judges decides a beauty contest by simple majority. 4 will vote for Marie, 3 for Sue. If 3 judges are selected randomly, what is the probability a majority favour Marie? **[22/35]**
+
+3. An incoming lot of 100 items is sampled (5 items). The lot is accepted if 1 or fewer defectives are found.
+   (a) If the lot contains 5 defectives, what is the probability of acceptance? **[0.981]**
+   (b) If the lot contains 15 defectives, what is the probability of rejection? **[0.8391]**
+
+4. In a school of 20 students, 6 are compulsive smokers. Prefects check 10 lockers at random. Find $P(\text{cigarettes found in at least 3 lockers})$ where $N=20$, $n=10$.
+
+---
+
+## Geometric (Pascal) Distribution
+
+A random variable $X$ has a **geometric distribution** if:
+
+$$f(x) = pq^x, \quad x = 0, 1, 2, \ldots; \quad 0 < p < 1$$
+
+This occurs when $X$ represents the number of trials **before the first success**.
+
+### Moment Generating Function
+
+$$M_X(t) = E(e^{tX}) = p \sum_{x=0}^{\infty} (qe^t)^x = \frac{p}{1 - qe^t} = p(1-qe^t)^{-1}$$
+
+### Mean
+
+$$M_X'(t) = pqe^t(1-qe^t)^{-2}$$
+
+$$M_X'(0) = pq(1-q)^{-2} = pqp^{-2} = \frac{q}{p}$$
+
+$$\therefore \textbf{Mean} = \frac{q}{p}$$
+
+### Variance
+
+Using the product rule on $M_X'(t)$:
+
+$$M_X''(t) = pqe^t(1-qe^t)^{-3}[1 + qe^t]$$
+
+$$M_X''(0) = pq(p)^{-3}(1+q) = qp^{-2}(1+q)$$
+
+$$\text{Var}(X) = M_X''(0) - [M_X'(0)]^2 = qp^{-2}(1+q) - \frac{q^2}{p^2} = \frac{q}{p^2}$$
+
+$$\boxed{\text{Var}(X) = \frac{q}{p^2}}$$
+
+---
+
+## Negative Binomial Distribution
+
+Consider independent repetitions with constant probability $p$ of success. Let $X$ = total number of **failures before the $r$th success**. Then:
+
+$$f(x) = \binom{x+r-1}{r-1} p^r q^x, \quad x = 0, 1, 2, \ldots$$
+
+**Note:** When $r = 1$, this reduces to the geometric distribution.
+
+### Moment Generating Function
+
+$$M_X(t) = p^r(1-qe^t)^{-r} = \left[\frac{p}{1-qe^t}\right]^r$$
+
+### Mean
+
+$$M_X'(t) = p^r r q e^t (1-qe^t)^{-r-1}$$
+
+$$M_X'(0) = rqp^{-1}$$
+
+$$\therefore \textbf{Mean} = \frac{rq}{p}$$
+
+### Variance
+
+$$M_X''(t) = p^r rqe^t(1-qe^t)^{-r-2}[1 + rqe^t]$$
+
+$$M_X''(0) = rqp^{-2}(1+rq)$$
+
+$$\text{Var}(X) = rqp^{-2}(1+rq) - \left(\frac{rq}{p}\right)^2 = \frac{rq}{p^2}$$
+
+$$\boxed{\text{Var}(X) = \frac{rq}{p^2}}$$
+
+### Example
+
+A telephone market research agency finds $p = 0.40$ probability that a call is answered.
+
+**(a)** Probability that the 10th answer comes on the 20th call ($r = 10$, $x + r = 20$):
+
+$$P = \binom{19}{9}(0.4)^{10}(0.6)^{10} = 0.05856$$
+
+**(b)** Expected number of calls to obtain 7 answers:
+
+$$E[X + r] = \frac{r}{p} = \frac{7}{0.4} = 17.5$$
+
+**(c)** Probability that the first answer comes on the third call ($r = 1$, $x + r = 3$):
+
+$$P = \binom{2}{0}(0.4)^1(0.6)^2 = 0.144$$
+
+---
+
+# Continuous Distributions
+
+## Uniform (Rectangular) Distribution
+
+A random variable $X$ has a **rectangular distribution** if:
+
+$$f(x) = \begin{cases} \frac{1}{b-a}, & a < x < b \\ 0, & \text{elsewhere} \end{cases}$$
+
+### Mean
+
+$$E(X) = \frac{1}{b-a} \int_a^b x \, dx = \frac{1}{2(b-a)}[b^2 - a^2] = \frac{a+b}{2}$$
+
+$$\boxed{E(X) = \frac{a+b}{2}}$$
+
+### Variance
+
+$$E(X^2) = \frac{1}{b-a} \int_a^b x^2 \, dx = \frac{b^2 + ab + a^2}{3}$$
+
+$$\text{Var}(X) = \frac{b^2 + ab + a^2}{3} - \left(\frac{a+b}{2}\right)^2 = \frac{(b-a)^2}{12}$$
+
+$$\boxed{\text{Var}(X) = \frac{(b-a)^2}{12}}$$
+
+### Moment Generating Function
+
+$$M_X(t) = \frac{1}{t(b-a)}\left[e^{tb} - e^{ta}\right]$$
+
+### Example
+
+Buses arrive every 10 minutes. Let $X$ be the waiting time. Then $X \sim U(0, 10)$:
+
+$$E(X) = \frac{0+10}{2} = 5, \qquad \text{Var}(X) = \frac{(10-0)^2}{12} = \frac{100}{12} \approx 8.33$$
+
+---
+
+## Normal Distribution
+
+The **normal (Gaussian) distribution** has the density function:
+
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right), \quad -\infty < x < \infty$$
+
+We write $X \sim N(\mu, \sigma^2)$, where $\mu$ is the mean and $\sigma^2$ is the variance.
+
+The curve is **bell-shaped** and **symmetric** about $x = \mu$, with inflection points at $x = \mu \pm \sigma$.
+
+### Standardisation
+
+The **standard normal variable** $Z = \frac{X - \mu}{\sigma} \sim N(0, 1)$:
+
+$$f(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}$$
+
+$$\Phi(z) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{z} e^{-t^2/2} \, dt$$
+
+### Key Probability Formula
+
+$$\Pr(a \leq X \leq b) = \Phi\left(\frac{b-\mu}{\sigma}\right) - \Phi\left(\frac{a-\mu}{\sigma}\right)$$
+
+### Properties
+
+- Bell-shaped, symmetric about $x = \mu$
+- $\Pr(X < \mu) = \Pr(X > \mu) = 0.5$
+- Total area under curve equals 1
+- $f(x) \to 0$ as $x \to \pm\infty$
+
+### Approximations
+
+- **Normal $\approx$ Binomial:** For large $n$, $X \sim \text{Bin}(n,p)$ is approximately $N(np, npq)$.  
+  Use when $p > 0.5$ and $np > 5$, or $p \leq 0.5$ and $n(1-p) > 5$.
+- **Normal $\approx$ Poisson:** For large $\mu$, $X \sim \text{Po}(\mu)$ is approximately $N(\mu, \mu)$.
+
+### Moment Generating Function
+
+$$M_X(t) = e^{\mu t + \frac{\sigma^2 t^2}{2}}$$
+
+### Mean and Variance
+
+$$M_X'(t) = (\mu + \sigma^2 t)e^{\mu t + \frac{\sigma^2 t^2}{2}}$$
+
+$$M_X'(0) = \mu \Rightarrow \textbf{Mean} = \mu$$
+
+$$M_X''(0) = \mu^2 + \sigma^2$$
+
+$$\text{Var}(X) = M_X''(0) - [M_X'(0)]^2 = \sigma^2$$
+
+### Standard Normal Variable $Z$
+
+$$E(Z) = E\left(\frac{X-\mu}{\sigma}\right) = \frac{\mu - \mu}{\sigma} = 0$$
+
+$$\text{Var}(Z) = \frac{1}{\sigma^2} E[(X-\mu)^2] = \frac{\sigma^2}{\sigma^2} = 1$$
+
+$$\therefore Z \sim N(0, 1)$$
+
+### Examples
+
+**Example 1.** For $Z \sim N(0,1)$:
+
+(a) $\Pr(Z \leq 2.44) = 0.9927$
+
+(b) $\Pr(Z \leq -1.16) = 0.1230$
+
+(c) $\Pr(Z \geq 1) = 1 - 0.8413 = 0.1587$
+
+(d) $\Pr(2 \leq Z \leq 10) = \Phi(10) - \Phi(2) = 1 - 0.9772 = 0.0228$
+
+**Example 2.** Find constant $c$ for $Z \sim N(0,1)$:
+
+(a) $\Pr(Z \geq c) = 10\%$: $\Phi(c) = 0.9 \Rightarrow c = 1.282$
+
+(b) $\Pr(Z \leq c) = 5\%$: $c = -1.645$
+
+(c) $\Pr(0 \leq Z \leq c) = 45\%$: $\Phi(c) = 0.95 \Rightarrow c = 1.645$
+
+(d) $\Pr(-c \leq Z \leq c) = 99\%$: $\Phi(c) = 0.995 \Rightarrow c = 2.576$
+
+**Example 3.** $X \sim N(-2, 0.25)$, so $\mu = -2$, $\sigma = 0.5$.
+
+(a) $\Pr(X \geq c) = 0.2$: $c = -1.579$
+
+(b) $\Pr(-c \leq X \leq -1) = 0.5$: $c = 2.0285$
+
+(c) $\Pr(-2-c \leq X \leq -2+c) = 0.9$: $c = 0.823$
+
+(d) $\Pr(-2-c \leq X \leq -2+c) = 99.6\%$: $c = 1.439$
+
+**Example 4.** An industrial process produces items that are normally distributed. 11.55% weigh over 20 kg and 5.89% weigh under 10 kg.
+
+Setting up equations:
+$$\frac{20-\mu}{\sigma} = 1.2 \Rightarrow \mu + 1.2\sigma = 20 \quad \cdots (i)$$
+$$\frac{10-\mu}{\sigma} = -1.56 \Rightarrow \mu - 1.56\sigma = 10 \quad \cdots (ii)$$
+
+Solving: $\mu = 15.652$, $\sigma = 3.623$.
+
+**Example 5.** $Z \sim N(0,1)$:
+
+(a) $P(Z < 0) = 0.5$ (by symmetry)
+
+(b) $P(-1 < Z < 1) = \Phi(1) - \Phi(-1) = 0.8413 - 0.1587 = 0.6826$
+
+(c) $P(Z > 2.54) = 1 - 0.9945 = 0.0055$
+
+**Example 6.** $X \sim N(9, 9)$, i.e., $\mu = 9$, $\sigma = 3$. Find $P(5 < X < 11)$.
+
+$$Z_1 = \frac{5-9}{3} = -1.333, \quad Z_2 = \frac{11-9}{3} = 0.667$$
+$$P(5 < X < 11) = \Phi(0.667) - \Phi(-1.333) = 0.7486 - 0.0918 = 0.6568$$
+
+**Example 7.** $X \sim N(10, \sigma^2)$ with $P(X > 12) = 0.1587$.
+
+$$\frac{12-10}{\sigma} = 1 \Rightarrow \sigma = 2$$
+
+$$P(9 < X < 11) = P\left(-0.5 < Z < 0.5\right) = 0.6915 - 0.3085 = 0.3830$$
+
+**Example 8.** Job time $X \sim N(55, 100)$.
+
+(i) $P(X > 75) = P(Z > 2) = 1 - 0.9772 = 0.0228$
+
+(ii) $P(X < 60) = P(Z < 0.5) = 0.6915$
+
+(iii) $P(45 < X < 60) = P(-1 < Z < 0.5) = 0.6915 - 0.1587 = 0.5328$
+
+### Normal Distribution Exercises
+
+1. $X \sim N(80, 9)$. Find:
+   (a) $\Pr(X > 83)$ **[0.1587]**
+   (b) $\Pr(X < 81)$ **[0.6306]**
+   (c) $\Pr(X < 80)$ **[0.5]**
+   (d) $\Pr(78 \leq X < 82)$ **[0.4950]**
+
+2. $X \sim N(14, 4)$. Find $c$ such that:
+   (a) $\Pr(X \leq c) = 95\%$ **[17.29]**
+   (b) $\Pr(X \leq c) = 5\%$ **[-17.29]**
+   (c) $\Pr(-c \leq X \leq c) = 99\%$ **[19.152]**
+
+3. Battery lifetime $X \sim N(4, 1)$ years. If guaranteed for 3 years, what percentage must be replaced? **[16%]**
+
+4. Airmail envelope weights: $X \sim N(1.950, 0.025^2)$ grams. In 1000 envelopes, how many weigh over 2 grams? **[About 22]**
+
+5. Bolt diameters $X \sim N(0.279, 0.001^2)$ cm. Specification: $0.280 \pm 0.002$ cm. What percentage meets specifications? **[84%]**
+
+6. Bolt lengths are normally distributed. Bolts outside $[2.983, 3.021]$ inches are rejected.
+   (i) From a sample of $N = 300$ with $\bar{x} = 3.007$ and $s = 0.011$: $n_1 = 4.4$, $n_2 = 30.6$.
+   (ii) From $N = 600$ with $n_1 = 20$ and $n_2 = 15$: $\hat{\mu} = 3.001$, $\hat{\sigma} = 0.01$.
+
+7. For $Z \sim N(0,1)$, show that $M_Z(t) = e^{t^2/2}$, and use the MGF to show $E(Z) = 0$ and $\text{Var}(Z) = 1$.
+
+---
+
+## Gamma Distribution
+
+### The Gamma Function
+
+$$\Gamma(\alpha) = \int_0^{\infty} y^{\alpha-1} e^{-y} \, dy, \quad \alpha > 0$$
+
+**Key properties:**
+
+- $\Gamma(1) = 1$
+- $\Gamma(\alpha) = (\alpha-1)\Gamma(\alpha-1)$
+- For positive integer $\alpha > 1$: $\Gamma(\alpha) = (\alpha-1)!$
+
+### Beta Function
+
+$$B(\alpha, \beta) = \int_0^1 y^{\alpha-1}(1-y)^{\beta-1} \, dy = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}$$
+
+### Gamma Distribution PDF
+
+A random variable $X$ has a **gamma distribution** with parameters $\alpha$ and $\beta$ if:
+
+$$f(x) = \frac{1}{\Gamma(\alpha)\beta^\alpha} x^{\alpha-1} e^{-x/\beta}, \quad 0 < x < \infty$$
+
+**Uses:** The gamma distribution frequently models waiting times (e.g., time until "death" in life testing).
+
+**Special case:** When $\alpha = 1$, $\lambda = 1/\beta$, the gamma reduces to the **exponential distribution**:
+
+$$f(x) = \lambda e^{-\lambda x}, \quad x > 0$$
+
+### Moment Generating Function
+
+$$M_X(t) = (1 - \beta t)^{-\alpha}$$
+
+### Mean
+
+$$M_X'(t) = \alpha\beta(1-\beta t)^{-\alpha-1}$$
+
+$$M_X'(0) = \alpha\beta \Rightarrow \textbf{Mean} = \alpha\beta$$
+
+### Variance
+
+$$M_X''(t) = \alpha\beta^2(\alpha+1)(1-\beta t)^{-\alpha-2}$$
+
+$$M_X''(0) = \alpha\beta^2(\alpha+1) = \alpha^2\beta^2 + \alpha\beta^2$$
+
+$$\text{Var}(X) = \alpha^2\beta^2 + \alpha\beta^2 - (\alpha\beta)^2 = \alpha\beta^2$$
+
+$$\boxed{\text{Var}(X) = \alpha\beta^2}$$
+
+---
+
+## Chi-Square Distribution
+
+The **chi-square distribution** is a special case of the gamma distribution with $\alpha = r/2$ and $\beta = 2$:
+
+$$f(x) = \frac{1}{\Gamma(r/2) \cdot 2^{r/2}} x^{r/2-1} e^{-x/2}, \quad 0 < x < \infty$$
+
+We write $X \sim \chi^2(r)$, where $r$ is the **degrees of freedom**.
+
+$$M_X(t) = (1-2t)^{-r/2}$$
+
+$$\textbf{Mean} = \alpha\beta = \frac{r}{2} \cdot 2 = r, \qquad \textbf{Var}(X) = \alpha\beta^2 = \frac{r}{2} \cdot 4 = 2r$$
+
+### Examples
+
+**Example 1.** If $f(x) = \frac{1}{4}xe^{-x/2}$, then $X \sim \chi^2(4)$:
+
+$$\mu = 4, \quad \text{Var}(X) = 8, \quad M_X(t) = (1-2t)^{-2}$$
+
+**Example 2.** If $M_X(t) = (1-2t)^{-8}$, then $X \sim \chi^2(16)$.
+
+---
+
+*End of Lecture 7 Notes*

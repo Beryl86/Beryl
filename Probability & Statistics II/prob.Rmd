@@ -1,0 +1,830 @@
+---
+title: "Probability and Statistics II"
+author: "Ms. Beryl Ang'iro"
+institution: "Karatina University"
+subtitle:  Department of Mathematics, Statistics & Actuarial Science
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    extra_dependencies: ["amsmath", "amssymb", "amsfonts"]
+  rmdformats::readthedown:
+    highlight: 
+    use_bookdown: TRUE
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: lumen
+    highlight: 
+    number_sections: true
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+categories: ["R"]
+#bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, comment = NA)
+```
+```{r style, echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
+suppressPackageStartupMessages({
+ # library(BiocStyle)
+  library(knitr)
+  library(rmarkdown)
+  library(bookdown)
+})
+options(width = 100)
+opts_chunk$set(fig.width = 5, fig.height = 5)
+
+```
+
+```{r,echo=FALSE}
+library(e1071)
+library(lattice)
+library(ggplot2)
+library(mvtnorm)
+```
+
+# Chapter One: Random Variables
+
+## Introduction
+
+### Random Experiment
+
+A **random experiment** is an experiment whose outcomes cannot be known with certainty. Instead, we assign probabilities to the various outcomes. All possible outcomes may be stated in advance, and the probabilities of the outcomes may be determined from experience.
+
+### Sample Space
+
+The **sample space** is the set of all possible outcomes of a random experiment. It is usually denoted by $S$.
+
+**Examples:**
+
+- Tossing a coin once: $S = \{H, T\}$
+- Throwing a fair die once: $S = \{1, 2, 3, 4, 5, 6\}$
+
+## Random Variable
+
+A **random variable** is a rule that assigns a numerical value to each outcome of a random experiment.
+
+Formally, consider a random experiment with sample space $C$. A function that assigns to each element $c \in C$ exactly one number $X(c) = x$ is called a random variable.
+
+The **space** or **range** of $X$ is the set of real numbers:
+$$D = \{x : x = X(c),\ c \in C\}$$
+
+It is a function from the sample space $S$ to the real numbers $(-\infty, \infty)$. We can also define a random variable as a numerical outcome of random experiments. The domain of a random variable is the sample space and its range is the set of real numbers.
+
+> **Notation:** We use capital letters such as $X$ to denote a random variable and lower-case letters such as $x$ to denote its possible values.
+
+**Example 1: Coin tossed three times**
+
+The random variable $X$ equals the number of heads that appear:
+$$X = \{0, 1, 2, 3\}$$
+
+**Example 2: Die thrown once**
+
+Let $X$ denote the outcome: $x = 1, 2, 3, 4, 5, 6$. Each value has probability $\frac{1}{6}$.
+
+## Discrete and Continuous Random Variables
+
+### Discrete Random Variable
+
+A random variable is said to be **discrete** if its possible values are countable (if its space is finite or countably infinite).
+
+A set $D$ is said to be countable if its elements can be listed, i.e., there is a one-to-one correspondence between $D$ and the positive integers (e.g., Number of defective items in a sample of 20 items).
+
+A discrete variable is one whose values are distinct from each other; the values are usually (but not necessarily) integers.
+
+### Continuous Random Variable
+
+A random variable is said to be **continuous** if it can take uncountably many values (values in an interval).
+
+**Examples:** Heights, weights, time.
+
+If its cumulative distribution function $F_X(x)$ is continuous for all $x \in \mathbb{R}$, then $X$ is continuous.
+
+Let $X$ be a random variable that can assume values only in the intervals $[x_1, x_2),\ [x_2, x_3),\ \ldots,\ [x_n, x_{n+1})$ with respective probabilities $p_1, p_2, \ldots, p_n$, where
+$$P(x_i \leq X < x_{i+1}) = p_i,\quad i = 1, 2, \ldots, n$$
+
+If $\sum_{i=1}^{n} p_i = 1$, then $X$ is a continuous random variable.
+
+> **N/B:** For continuous random variables we cannot assign probabilities to specific values as in the case of discrete random variables.
+
+---
+
+## Probability Distribution of a Discrete Random Variable
+
+Suppose that $X$ is a discrete random variable and $x$ is one of its possible values, then the probability that $X = x$ is denoted:
+$$P_X(x) = P(X = x)$$
+
+The probability distributions of a discrete random variable are the relationship that pairs the values of the random variable with their corresponding probabilities. This relationship can be in the form of a table, algebraic form, or graphical form.
+
+Let $X$ be a discrete random variable with space $D$. The **probability mass function (pmf)** is:
+$$P_X(x) = P(X = x),\quad x \in D$$
+
+### Properties of the Probability Mass Function
+
+**1. Non-Negativity Property**
+$$P_X(x) \geq 0$$
+$$0 \leq P_X(x) \leq 1,\quad x \in D$$
+
+*Example:* For a fair die, $P_X(x) = \frac{1}{6},\ x = 1,2,3,4,5,6$. Each value satisfies $0 \leq \frac{1}{6} \leq 1$.
+
+**2. Total Probability Property**
+$$\sum_{x \in D} P_X(x) = 1$$
+
+### Example 1: Coin Tossed Three Times
+
+Let the random variable $X$ be the number of heads that appear. What is the probability distribution of the random variable $X$?
+
+**Solution:**
+
+$X = \{0, 1, 2, 3\}$
+
+$S = \{HHH, HHT, HTH, HTT, THH, THT, TTH, TTT\}$
+
+| $x$ | 0 | 1 | 2 | 3 |
+|:---:|:---:|:---:|:---:|:---:|
+| $P(X=x)$ | $\frac{1}{8}$ | $\frac{3}{8}$ | $\frac{3}{8}$ | $\frac{1}{8}$ |
+
+### Example 2: Die Rolled Once
+
+A die is rolled once. Let the random variable $X$ denote the number facing up. What is the probability mass function (p.m.f) of $X$?
+
+**Solution:**
+$$P(X = x) = \begin{cases} \frac{1}{6}, & x = 1, 2, 3, 4, 5, 6 \\ 0, & \text{elsewhere} \end{cases}$$
+
+### Example 3
+
+Given $f(x) = \frac{x}{10},\ x = 1, 2, 3, 4$, show that $f(x)$ is a p.m.f.
+
+Two conditions required:
+
+- **Non-negativity:** $f(x) \geq 0$ for all $x$
+- **Total probability:** $\sum_{\text{all }x} f(x) = 1$
+
+| $x$ | 1 | 2 | 3 | 4 | $\Sigma$ |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| $f(x)$ | $\frac{1}{10}$ | $\frac{2}{10}$ | $\frac{3}{10}$ | $\frac{4}{10}$ | 1 |
+
+**Condition 1: Non-negativity**
+
+For $x \in \{1,2,3,4\}$, we have $x > 0$, therefore: $f(x) = \frac{x}{10} > 0$ ✓
+
+**Condition 2: Total Probability = 1**
+$$\sum_{x=1}^{4} f(x) = \frac{1}{10} + \frac{2}{10} + \frac{3}{10} + \frac{4}{10} = \frac{1+2+3+4}{10} = \frac{10}{10} = 1 \checkmark$$
+
+Both conditions are satisfied $\Rightarrow$ $f(x)$ is a p.m.f. $\blacksquare$
+
+### Example 4 — Bernoulli Distribution
+
+Given $f(x) = p^x(1-p)^{1-x},\ x = 0, 1,\ 0 < p < 1$, show that $f(x)$ is a p.m.f.
+
+**Condition 1: Non-negativity**
+
+Since $0 < p < 1$: $p^x \geq 0$ and $(1-p)^{1-x} \geq 0$, therefore $f(x) \geq 0$ ✓
+
+| $x$ | 0 | 1 | $\Sigma$ |
+|:---:|:---:|:---:|:---:|
+| $f(x)$ | $1-p$ | $p$ | 1 |
+
+**Condition 2: Total Probability = 1**
+$$f(0) + f(1) = p^0(1-p)^1 + p^1(1-p)^0 = (1-p) + p = 1 \checkmark$$
+
+### Example 5 — Binomial Distribution
+
+Given
+$$f(x) = \binom{n}{x} p^x q^{n-x},\quad x = 0, 1, 2, \ldots, n$$
+where $p$ is the probability of success and $q = 1 - p$ is the probability of failure. Show that $f(x)$ is a p.m.f.
+
+**Solution:**
+
+$$\sum_{x=0}^{n} \binom{n}{x} p^x q^{n-x} = \binom{n}{0}p^0 q^n + \binom{n}{1}p^1 q^{n-1} + \binom{n}{2}p^2 q^{n-2} + \cdots + \binom{n}{n}p^n q^0$$
+
+$$= q^n + \binom{n}{1}pq^{n-1} + \binom{n}{2}p^2 q^{n-2} + \cdots + p^n$$
+
+From the binomial formula: $(a+b)^n = a^n + \binom{n}{1}ab^{n-1} + \binom{n}{2}a^2 b^{n-2} + \cdots + b^n$
+
+$$\Rightarrow q^n + \binom{n}{1}pq^{n-1} + \binom{n}{2}p^2 q^{n-2} + \cdots + p^n = (p+q)^n = 1$$
+
+Hence $\displaystyle\sum_{x=0}^{n} \binom{n}{x} p^x q^{n-x} = 1$ ✓
+
+### Example 6 — Poisson Distribution
+
+Let $X$ be a Poisson distributed random variable with
+$$f(x;\lambda) = \frac{e^{-\lambda}\lambda^x}{x!},\quad x = 0, 1, 2, \ldots \quad (= 0 \text{ elsewhere})$$
+where $\lambda$ is a parameter. Show that $f(x)$ is a discrete p.d.f.
+
+**Solution:**
+
+$$\sum_{x} f(x) = \sum_{x=0}^{\infty} \frac{e^{-\lambda}\lambda^x}{x!} = e^{-\lambda}\sum_{x=0}^{\infty} \frac{\lambda^x}{x!} = e^{-\lambda}\left(1 + \lambda + \frac{\lambda^2}{2!} + \frac{\lambda^3}{3!} + \cdots + \frac{\lambda^n}{n!} + \cdots\right)$$
+
+Since $e^{\lambda} = 1 + \lambda + \frac{\lambda^2}{2!} + \frac{\lambda^3}{3!} + \cdots$:
+
+$$\sum_{x} f(x) = e^{-\lambda} \cdot e^{\lambda} = e^0 = 1$$
+
+Hence $f(x)$ is a p.m.f. ✓
+
+---
+
+## Probability Distribution of a Continuous Random Variable
+
+If $X$ is a continuous random variable, then the function giving the probabilities $f(x)$ is called a **probability density function (p.d.f)**.
+
+### Properties of a Continuous Random Variable
+
+Let $X$ be a continuous random variable with pdf $f(x)$, then:
+
+1. **Non-negativity:** $f(x) \geq 0$ for all $x$
+
+2. **Total Area Property:** $\displaystyle\int_{-\infty}^{\infty} f(x)\, dx = 1$
+
+3. **Probabilities:** $P(a < X < b) = \displaystyle\int_{a}^{b} f(x)\, dx$
+
+### Example 1
+
+Let $X$ be the delay (in hours) of a flight with probability density function:
+$$f(x) = \begin{cases} 0.2 - 0.02x, & 0 \leq x \leq 10 \\ 0, & \text{otherwise} \end{cases}$$
+
+**(i) Show that $f(x)$ is a pdf**
+
+At the endpoints: $f(0) = 0.2$ and $f(10) = 0.2 - 0.02(10) = 0$.
+
+Since $f(x)$ decreases linearly from $0.2$ to $0$, we have $f(x) \geq 0$ for $0 \leq x \leq 10$.
+
+Verify total area equals 1:
+$$\int_{0}^{10}(0.2 - 0.02x)\,dx = \Big[0.2x - 0.01x^2\Big]_0^{10} = (0.2 \times 10 - 0.01 \times 100) = (2-1) = 1 \checkmark$$
+
+**(ii) Find $P(X \geq 2)$**
+
+First find $f(2)$: $f(2) = 0.2 - 0.02(2) = 0.16$.
+
+Since the graph is a straight line, the region from $x=2$ to $x=10$ forms a triangle with base $= 10-2=8$ and height $= 0.16$:
+
+$$P(X \geq 2) = \frac{1}{2} \times 8 \times 0.16 = 0.64$$
+
+Alternatively, using integration:
+$$P(X \geq 2) = \int_{2}^{10}(0.2 - 0.02x)\,dx = \Big[0.2x - 0.01x^2\Big]_2^{10} = (2-1) - (0.4 - 0.04) = 0.64$$
+
+### Example 2
+
+A continuous random variable has the following probability density function:
+$$f(x) = \begin{cases} k(x+2)^2, & 0 \leq x \leq 2 \\ 0, & \text{otherwise} \end{cases}$$
+
+**(i) Find the value of $k$**
+
+Since $f(x)$ is a p.d.f., the total area under the curve must equal 1:
+$$\int_{0}^{2} k(x+2)^2\,dx = 1$$
+
+Expanding $(x+2)^2 = x^2 + 4x + 4$:
+$$k\int_{0}^{2}(x^2 + 4x + 4)\,dx = k\left[\frac{x^3}{3} + 2x^2 + 4x\right]_0^2 = k\left[\frac{8}{3} + 8 + 8\right] = k \cdot \frac{56}{3} = 1$$
+
+$$\Rightarrow k = \frac{3}{56}$$
+
+**(ii) Find $P(0 < X < 1)$**
+
+$$P(0 < X < 1) = \int_{0}^{1} \frac{3}{56}(x+2)^2\,dx = \frac{3}{56}\left[\frac{x^3}{3} + 2x^2 + 4x\right]_0^1 = \frac{3}{56} \cdot 19 = \frac{19}{56}$$
+
+**(iii) Find $P(X > 1)$**
+
+$$P(X > 1) = 1 - P(0 < X < 1) = 1 - \frac{19}{56} = \frac{37}{56}$$
+
+### Example 3
+
+A p.d.f is given by the piecewise function:
+$$f(x) = \begin{cases} k, & 0 \leq x \leq 2 \\ k(2x-3), & 2 \leq x \leq 3 \\ 0, & \text{otherwise} \end{cases}$$
+
+**(i) Find the value of $k$**
+
+Since $f(x)$ is a p.d.f.:
+$$\int_{0}^{2} k\,dx + \int_{2}^{3} k(2x-3)\,dx = 1$$
+
+$$k[x]_0^2 + k\big[x^2 - 3x\big]_2^3 = 1$$
+
+$$k[2-0 + (9-9)-(4-6)] = k[2+2] = 4k = 1$$
+
+$$\Rightarrow k = \frac{1}{4}$$
+
+**(ii) Find $P(1 < X < 2.5)$**
+
+Split the integral across the two ranges:
+$$P(1 < X < 2.5) = \int_{1}^{2}\frac{1}{4}\,dx + \int_{2}^{2.5}\frac{1}{4}(2x-3)\,dx$$
+
+$$= \frac{1}{4}[x]_1^2 + \frac{1}{4}\big[x^2-3x\big]_2^{2.5}$$
+
+$$= \frac{1}{4}(2-1) + \frac{1}{4}\big[(6.25-7.5)-(4-6)\big]$$
+
+$$= \frac{1}{4}(1) + \frac{1}{4}(-1.25+2) = \frac{1}{4}(1) + \frac{1}{4}(0.75) = \frac{1.75}{4} = \frac{7}{16}$$
+
+---
+
+## Exercises (Chapter one)
+
+**Exercise 1.** A continuous random variable $X$ has a p.d.f.:
+$$f(x) = \begin{cases} c(x^2 - 2x + 3), & 0 \leq x \leq 2 \\ 0, & \text{otherwise} \end{cases}$$
+where $c$ is a constant. Find:
+
+- The value of $c$ — *Answer:* $c = \frac{3}{14}$
+- $P(X \geq 1)$ — *Answer:* $\frac{1}{2}$
+
+**Exercise 2.** Consider a continuous random variable $X$ with p.d.f:
+$$f(x) = \begin{cases} kx^2, & 0 \leq x \leq 1 \\ 0, & \text{elsewhere} \end{cases}$$
+
+- Determine the value of $k$
+- Find $a$ such that $\Pr(X \leq a) = \Pr(X > a)$
+- Find $b$ such that $\Pr(X > b) = 0.05$
+
+**Exercise 3.** Let $X$ be a continuous random variable with p.d.f:
+$$f(x) = \begin{cases} ax, & 0 \leq x \leq 1 \\ a, & 1 \leq x \leq 2 \\ -ax+3a, & 2 \leq x \leq 3 \\ 0, & \text{elsewhere} \end{cases}$$
+
+- Define the constant $a$
+- Compute the probability $\Pr(X \leq 1.5)$
+
+---
+
+## Solutions to Exercises (Chapter one:)
+
+### Solution to Exercise 2
+
+**Finding $k$:**
+
+Since $f(x)$ is a p.d.f.:
+$$\int_{-\infty}^{\infty} f(x)\,dx = 1 \Rightarrow \int_{0}^{1} kx^2\,dx = 1$$
+
+$$k\left[\frac{x^3}{3}\right]_0^1 = 1 \Rightarrow \frac{k}{3} = 1 \Rightarrow k = 3$$
+
+**Finding $a$ such that $\Pr(X \leq a) = \Pr(X > a)$:**
+
+$$\int_0^a 3x^2\,dx = \int_a^1 3x^2\,dx$$
+$$[x^3]_0^a = [x^3]_a^1$$
+$$a^3 = 1 - a^3$$
+$$2a^3 = 1 \Rightarrow a = \sqrt[3]{\frac{1}{2}}$$
+
+**Finding $b$ such that $\Pr(X > b) = 0.05$:**
+
+$$\int_b^1 3x^2\,dx = 0.05 \Rightarrow \left[x^3\right]_b^1 = 0.05 \Rightarrow 1 - b^3 = 0.05$$
+$$b^3 = 0.95 \Rightarrow b = \sqrt[3]{0.95}$$
+### Solution to Exercise 3
+
+**Finding $a$:**
+
+$$\int_0^1 ax\,dx + \int_1^2 a\,dx + \int_2^3(-ax+3a)\,dx = 1$$
+
+$$\left[\frac{ax^2}{2}\right]_0^1 + [ax]_1^2 + \left[-\frac{ax^2}{2}+3ax\right]_2^3 = 1$$
+
+$$\frac{a}{2} + a + \frac{a}{2} = 1 \Rightarrow 2a = 1 \Rightarrow a = \frac{1}{2}$$
+
+**Computing $\Pr(X \leq 1.5)$:**
+
+$$\Pr(X \leq 1.5) = \int_0^1 \frac{1}{2}x\,dx + \int_1^{1.5}\frac{1}{2}\,dx = \left[\frac{x^2}{4}\right]_0^1 + \left[\frac{x}{2}\right]_1^{1.5}$$
+
+$$= \left(\frac{1}{4} - 0\right) + (0.75 - 0.5) = 0.25 + 0.25 = 0.5$$
+
+---
+
+# Chapter Two: The Cumulative Distribution Function
+
+## Definition
+
+The function $F(x)$ is called the **distribution function** or **cumulative distribution function** of the random variable $X$, if:
+
+**Discrete Type:**
+$$F(x) = \Pr(X \leq x) = \sum_{t \leq x} f(t)$$
+
+**Continuous Type:**
+$$F(x) = \Pr(X \leq x) = \int_{-\infty}^{x} f(t)\,dt$$
+
+## Properties of $F(x)$
+
+**(i)** $F(-\infty) = \lim_{x \to -\infty} F(x) = 0$ and $F(\infty) = \lim_{x \to \infty} F(x) = 1$
+
+Also $0 \leq F(x) \leq 1$; $F(x) = 0$ below the smallest value and $F(x) = 1$ above the largest value.
+
+**(ii)** $F(x)$ is a **monotone, non-decreasing** function, i.e., $F(a) \leq F(b)$ for $a < b$.
+
+If $X$ is a continuous random variable, then:
+$$P(a < X < b) = F_X(b) - F_X(a) = \int_a^b f_X(t)\,dt$$
+
+**(iii)** $F(x)$ is **continuous from the right**, i.e.:
+$$\lim_{h \to 0} F(x+h) = f(x),\quad \text{i.e.,}\quad \frac{d}{dx}\left[F(x+h)\right] = f(x)$$
+
+$$F_X(x) = \int_{-\infty}^{x} f_X(t)\,dt \qquad f_X(x) = \frac{d}{dx}F_X(x)$$
+
+---
+
+## Discrete Distribution Function / CDF
+
+### Example 1
+
+Let the random variable $X$ of the discrete type have the p.d.f.:
+$$f(x) = \begin{cases} \frac{x}{6}, & x = 1, 2, 3 \\ 0, & \text{otherwise} \end{cases}$$
+
+Find the distribution function of $X$.
+
+**Recall:** $F(x) = \displaystyle\sum_{t \leq x} f(t)$
+
+**Solution:**
+
+$$F(x) = \begin{cases} 0, & x < 1 \\ \frac{1}{6}, & 1 \leq x < 2 \\ \frac{3}{6}, & 2 \leq x < 3 \\ 1, & 3 \leq x \end{cases}$$
+
+> **Note:** $F(x)$ is a step function that is constant in every interval containing 1, 2, or 3, but has steps of height $\frac{1}{6}$, $\frac{2}{6}$, and $\frac{3}{6}$.
+
+### Example 2
+
+Given the distribution function for a random variable $Y$:
+
+$$F_Y(t) = \begin{cases} 0, & t < -2 \\ 1/3, & -2 \leq t < 1 \\ 7/12, & 1 \leq t < 5 \\ 47/60, & 5 \leq t < 11 \\ 57/60, & 11 \leq t < 20 \\ 1, & 20 \leq t \end{cases}$$
+
+Find: (a) $f_Y(t)$, (b) $\Pr[0 \leq Y \leq 1]$, (c) $\Pr[3 \leq Y \leq 10]$
+
+**Solution (a): Finding $f_Y(t)$**
+
+To find $f_Y(t)$, locate the points of discontinuity of $F_Y(t)$: these are $-2, 1, 5, 11, 20$. The value of the probability function at each point equals the size of the jump in $F_Y(t)$:
+
+| $t$ | $f_Y(t)$ |
+|:---:|:---:|
+| $-2$ | $1/3$ |
+| $1$ | $1/4$ |
+| $5$ | $1/5$ |
+| $11$ | $1/6$ |
+| $20$ | $1/20$ |
+
+**Solution (b):** $\Pr[0 \leq Y \leq 1]$
+
+$$\Pr[0 \leq Y \leq 1] = F(1) - F(0) = \frac{7}{12} - \frac{1}{3} = \frac{1}{4}$$
+
+**Solution (c):** $\Pr[3 \leq Y \leq 10]$
+
+$$\Pr[3 \leq Y \leq 10] = F(10) - F(3) = \frac{47}{60} - \frac{7}{12} = \frac{47}{60} - \frac{35}{60} = \frac{12}{60} = \frac{1}{5}$$
+
+---
+
+## Continuous Distribution Function / CDF
+
+### Example 3
+
+Let $X$ be a random variable of continuous type defined by the p.d.f.:
+$$f(x) = \begin{cases} \frac{2}{x^3}, & 1 < x < \infty \\ 0, & \text{elsewhere} \end{cases}$$
+
+Find the cumulative distribution function $F(x)$.
+
+**Solution:**
+
+$$F(x) = \int_{-\infty}^{x} f(t)\,dt = \int_{1}^{x} \frac{2}{t^3}\,dt = \int_{1}^{x} 2t^{-3}\,dt = \Big[-t^{-2}\Big]_1^x = 1 - \frac{1}{x^2}$$
+
+Therefore:
+$$F(x) = \begin{cases} 0, & x < 1 \\ 1 - \frac{1}{x^2}, & 1 \leq x \end{cases}$$
+
+### Example 4 — Finding the Density Function
+
+Let $X$ be the random variable whose distribution function is:
+$$F_X(t) = \begin{cases} 0, & t < 0 \\ t, & 0 \leq t \leq 1 \\ 1, & 1 < t \end{cases}$$
+
+Find the density function of $X$.
+
+**Solution:** Differentiate $F_X(t)$:
+$$f_X(t) = \frac{d}{dt}\left[F_X(t)\right]$$
+
+$$f_X(t) = \begin{cases} 1, & 0 < t < 1 \\ 0, & t < 0 \text{ or } t > 1 \end{cases}$$
+
+This is the **Uniform(0, 1) distribution**.
+
+### Example 5
+
+Let $X$ be a continuous random variable with p.d.f:
+$$f(x) = \begin{cases} \frac{1}{2}x, & 0 < x < 2 \\ 0, & \text{otherwise} \end{cases}$$
+
+Obtain the c.d.f of the random variable $X$.
+
+**Solution:**
+
+For $x \leq 0$: $F(x) = 0$
+
+For $0 < x < 2$:
+$$F(x) = \int \frac{1}{2}x\,dx = \frac{x^2}{4} + c_1$$
+
+Using $F(0) = 0$: $\frac{0^2}{4} + c_1 = 0 \Rightarrow c_1 = 0$
+
+Check: $F(2) = \frac{2^2}{4} + 0 = 1$ ✓
+
+Hence the c.d.f becomes:
+$$F(x) = \begin{cases} 0, & x \leq 0 \\ \frac{x^2}{4}, & 0 < x < 2 \\ 1, & x \geq 2 \end{cases}$$
+
+---
+
+## Exercises (Chapter two)
+
+**Exercise 1.** The random variable $Z$ has the probability function:
+$$f_Z(x) = \begin{cases} \frac{1}{3}, & x = 0, 1, 2 \\ 0, & \text{elsewhere} \end{cases}$$
+What is the distribution function of $Z$?
+
+*Answer:*
+$$F_Z(x) = \begin{cases} 0, & x < 0 \\ \frac{1}{3}, & 0 \leq x < 1 \\ \frac{2}{3}, & 1 \leq x < 2 \\ 1, & 2 \leq x \end{cases}$$
+
+**Exercise 2.** The random variable $U$ has the probability function: $f_U(-3) = \frac{1}{2}$, $f_U(0) = \frac{1}{6}$, $f_U(4) = \frac{1}{3}$. Find the distribution function of $U$.
+
+*Answer:*
+$$F_U(x) = \begin{cases} 0, & x < -3 \\ \frac{1}{2}, & -3 \leq x < 0 \\ \frac{2}{3}, & 0 \leq x < 4 \\ 1, & 4 \leq x \end{cases}$$
+
+**Exercise 3.** Verify that
+$$F_X(t) = \begin{cases} 0, & t < -1 \\ \frac{t+1}{2}, & -1 \leq t \leq 1 \\ 1, & t > 1 \end{cases}$$
+is a distribution function and specify the probability density function for $X$. Use it to compute $P\!\left(-\frac{1}{2} \leq X \leq \frac{1}{2}\right)$.
+
+*Answer: $\frac{1}{2}$*
+
+**Exercise 4.** $Y$ is a continuous random variable with:
+$$f(y) = \begin{cases} 2(1-y), & 0 < y < 1 \\ 0, & \text{elsewhere} \end{cases}$$
+Find the cumulative distribution function of $Y$.
+
+*Answer:*
+$$F(y) = \begin{cases} 2y - y^2, & 0 \leq y \leq 1 \\ 0, & \text{elsewhere} \end{cases}$$
+
+**Exercise 5.** $Z$ is a continuous random variable with probability density function:
+$$f(z) = \begin{cases} 10e^{-10z}, & z > 0 \\ 0, & \text{elsewhere} \end{cases}$$
+Find the cumulative distribution function of $Z$.
+
+*Answer:*
+$$F(z) = \begin{cases} 1 - e^{-10z}, & z > 0 \\ 0, & \text{elsewhere} \end{cases}$$
+
+**Exercise 6.** For each of the following, find the constant $c$ so that $f(x)$ is a p.d.f.
+
+**(a)**
+$$f(x) = \begin{cases} c\left(\frac{2}{3}\right)^x, & x = 1, 2, 3, \ldots \\ 0, & \text{elsewhere} \end{cases}$$
+*Answer: $c = \frac{1}{2}$*
+
+**(b)**
+$$f(x) = \begin{cases} cxe^{-x}, & 0 < x < \infty \\ 0, & \text{elsewhere} \end{cases}$$
+*Answer: $c = 1$*
+
+**Exercise 7.** Let the p.d.f of the random variable $X$ be:
+$$f(x) = \begin{cases} \frac{x}{15}, & x = 1, 2, 3, 4, 5 \\ 0, & \text{elsewhere} \end{cases}$$
+Find:
+
+1. $P(X = 1 \text{ or } 2)$ — *Answer: $\frac{1}{5}$*
+2. $P\!\left(\frac{1}{2} < X < \frac{5}{2}\right)$ — *Answer: $\frac{1}{5}$*
+3. $P(1 \leq X \leq 2)$ — *Answer: $\frac{1}{5}$*
+
+**Exercise 8.** Let $f(x)$ be the p.d.f of a random variable $X$. Find the distribution function $F(x)$.
+
+**(a)**
+$$f(x) = \begin{cases} 1, & x = 0 \\ 0, & \text{elsewhere} \end{cases}$$
+*Answer:*
+$$F(x) = \begin{cases} 0, & x < 0 \\ 1, & x \geq 0 \end{cases}$$
+
+**(b)**
+$$f(x) = \begin{cases} 3(1-x)^2, & 0 < x < 1 \\ 0, & \text{elsewhere} \end{cases}$$
+*Answer:*
+$$F(x) = \begin{cases} 3x - 3x^2 + x^3, & 0 < x < 1 \\ 0, & \text{elsewhere} \end{cases}$$
+
+**Exercise 9.** Given the distribution function:
+$$F(x) = \begin{cases} 0, & x < -1 \\ \frac{x+2}{4}, & -1 \leq x \leq 1 \\ 1, & 1 \leq x \end{cases}$$
+
+Compute:
+
+1. $P\!\left(-\frac{1}{2} < X \leq \frac{1}{2}\right)$ — *Answer: $\frac{1}{4}$*
+2. $P(X = 0)$ — *Answer: $0$*
+3. $P(X = 1)$ — *Answer: $\frac{1}{4}$*
+4. $P(2 < X \leq 3)$ — *Answer: $0$*
+
+
+# Chapter Three: Measures of Location
+
+## Quantiles and Percentiles
+The $p^{\text{th}}$ quantile of a random variable $X$, denoted by $\xi_{p}$, is the specific value such that:
+$$Pr(X \le \xi_{p}) \ge p \quad \text{and} \quad Pr(X \ge \xi_{p}) \ge 1-p$$
+
+Let $0 < p < 1$. The $100p^{\text{th}}$ percentile (quantile of order $p$) of the distribution of a random variable $X$ is a value $\xi_{p}$ satisfying the exact same constraint.
+
+### The Median
+The **median** is the $0.5^{\text{th}}$ quantile (or the $50^{\text{th}}$ percentile), written as $\xi_{0.5}$ or $M$. It represents the middle point of a probability distribution, halving the total area under its curve.
+
+#### Continuous Case
+For a continuous random variable $X$ defined with a probability density function (p.d.f.) $f(x)$ and cumulative distribution function (c.d.f.) $F(x)$, the median $M$ satisfies:
+$$\int_{-\infty}^{M} f(x)dx = F(M) = 0.5$$
+
+#### Discrete Case
+For a discrete random variable $X$ defined with a probability mass function (p.m.f.) $P(X=x_i)$, the median $M$ is the smallest ordered value such that:
+$$\sum_{x_i \le M} P(X = x_i) \ge 0.5 \quad \text{and} \quad \sum_{x_i \ge M} P(X = x_i) \ge 0.5$$
+
+---
+
+## Worked Examples
+
+### Example 3.1: Continuous Distribution Median and Percentiles
+Find the median and the $25^{\text{th}}$ percentile of the following p.d.f.:
+$$f(x) = \begin{cases} 3(1-x)^2, & 0 < x < 1 \\ 0, & \text{otherwise} \end{cases}$$
+
+**Solution:**
+To find the median $M$, solve $F(M) = 0.5$:
+$$\int_{0}^{M} 3(1-x)^2 dx = 0.5$$
+
+Using substitution ($u = 1-x \implies du = -dx$):
+$$-\int_{1}^{1-M} 3u^2 du = 0.5 \implies \left[ u^3 \right]_{1-M}^{1} = 0.5$$
+$$1 - (1-M)^3 = 0.5 \implies (1-M)^3 = 0.5$$
+$$1 - M = \sqrt[3]{0.5} \implies M = 1 - \sqrt[3]{0.5} \approx 0.2063$$
+
+To evaluate the $25^{\text{th}}$ percentile ($\xi_{0.25}$):
+$$\int_{0}^{\xi_{0.25}} 3(1-x)^2 dx = 0.25 \implies 1 - (1-\xi_{0.25})^3 = 0.25$$
+$$(1-\xi_{0.25})^3 = 0.75 \implies \xi_{0.25} = 1 - \sqrt[3]{0.75} \approx 0.0914$$
+
+### Example 3.2: Discrete Quantile Evaluation
+Find the median of the distribution given $p = \frac{1}{4}$ and:
+$$P(X=x) = \begin{cases} p(1-p)^x, & x = 0, 1, 2, \dots \\ 0, & \text{otherwise} \end{cases}$$
+
+**Solution:**
+Substitute $p = 0.25 \implies 1-p = 0.75$. Accumulate values sequentially until $F(x) \ge 0.5$:
+- For $x = 0$: $P(X=0) = 0.25 \implies F(0) = 0.25$
+- For $x = 1$: $P(X=1) = 0.25(0.75)^1 = 0.1875 \implies F(1) = 0.25 + 0.1875 = 0.4375$
+- For $x = 2$: $P(X=2) = 0.25(0.75)^2 = 0.1406 \implies F(2) = 0.4375 + 0.1406 = 0.5781$
+
+Since $F(2) = 0.5781 \ge 0.5$, the median is $M = 2$.
+
+### Example 3.3: Logarithmic Functional Profile
+Given the p.d.f. $f(x) = \begin{cases} \frac{k}{x}, & 1 \le x \le 9 \\ 0, & \text{otherwise} \end{cases}$, evaluate:
+1. The value of $k$
+2. The median
+3. The interquartile range (IQR)
+
+**Solution:**
+1. **Find $k$:** $\int_{1}^{9} \frac{k}{x} dx = 1 \implies k [\ln x]_1^9 = k \ln 9 = 1 \implies k = \frac{1}{\ln 9} \approx 0.4551$.
+2. **Median ($M$):** $\int_{1}^{M} \frac{1}{\ln 9 \cdot x} dx = 0.5 \implies \frac{\ln M}{\ln 9} = 0.5 \implies \ln M = \ln(9^{0.5}) \implies M = 3$.
+3. **IQR ($Q_3 - Q_1$):**
+   - $\frac{\ln Q_1}{\ln 9} = 0.25 \implies Q_1 = 9^{0.25} \approx 1.7321$
+   - $\frac{\ln Q_3}{\ln 9} = 0.75 \implies Q_3 = 9^{0.75} \approx 5.1962$
+   - $IQR = 5.1962 - 1.7321 = 3.4641$
+
+---
+
+## Mode of a Distribution
+The **mode** is the value of $x$ maximizing the p.d.f or p.m.f. In continuous frameworks, we locate it by taking derivatives: $f'(x) = 0$ with confirmation that $f''(x) < 0$.
+
+---
+
+# Lecture 4: Expectation of a Random Variable
+
+## Definition and Formulas
+Mathematical expectation provides the theoretical long-run average value of a random variable, denoted as $E(X)$ or $\mu$.
+
+- **Discrete:** $E(X) = \sum_{i=1}^{n} x_i P(X = x_i)$
+- **Continuous:** $E(X) = \int_{-\infty}^{\infty} x f(x) dx$
+
+### Expected Value of an Arbitrary Function $g(X)$
+- **Discrete:** $E[g(X)] = \sum_{all\,x} g(x) P(X=x)$
+- **Continuous:** $E[g(X)] = \int_{-\infty}^{\infty} g(x) f(x) dx$
+
+---
+
+## Operational Properties of Expectation
+For any constants $a, b, c$ and functions $g(X)$ and $h(X)$:
+1. $E(c) = c$
+2. $E(X + c) = E(X) + c$
+3. $E(cX) = cE(X)$
+4. $E(aX + b) = aE(X) + b$
+5. $E[ag(X) \pm bh(X)] = aE[g(X)] \pm bE[h(X)]$
+
+---
+
+## Variance of a Random Variable
+Variance gauges the structural dispersion of values around their true mean:
+$$Var(X) = \sigma^2 = E[(X - \mu)^2] = E(X^2) - [E(X)]^2$$
+
+### Properties of Variance
+1. $Var(c) = 0$
+2. $Var(X + c) = Var(X)$
+3. $Var(cX) = c^2 Var(X)$
+4. $Var(aX + b) = a^2 Var(X)$
+
+---
+
+## Computational Example
+
+### Example 4.1: Linearity with Polynomial Expressions
+Given a discrete variable $X$ with p.m.f $P(X=x) = \frac{x}{10}$ for $x \in \{1, 2, 3, 4\}$, evaluate $E[5X^3 - 2X^2]$.
+
+#### Solution using R
+```{r}
+x <- 1:4
+pmf <- x / 10
+
+E_x2 <- sum((x^2) * pmf)
+E_x3 <- sum((x^3) * pmf)
+
+ans <- 5 * E_x3 - 2 * E_x2
+cat("E(X^2) =", E_x2, "\nE(X^3) =", E_x3, "\nE(5X^3 - 2X^2) =", ans)
+```
+
+---
+
+# Lecture 5: Moments of a Random Variable
+
+## Raw Moments (Moments about the Origin)
+The $r^{\text{th}}$ raw moment of $X$, written as $\mu_r'$, is defined by:
+$$\mu_r' = E(X^r)$$
+- **Discrete:** $\mu_r' = \sum_{all\,x} x^r P(X=x)$
+- **Continuous:** $\mu_r' = \int_{-\infty}^{\infty} x^r f(x) dx$
+
+*Note:* The first raw moment $\mu_1'$ equals the mean ($\mu$).
+
+---
+
+## Central Moments (Moments about the Mean)
+The $r^{\text{th}}$ central moment of $X$, written as $\mu_r$, is defined by:
+$$\mu_r = E[(X - \mu)^r]$$
+- **Discrete:** $\mu_r = \sum_{all\,x} (x - \mu)^r P(X=x)$
+- **Continuous:** $\mu_r = \int_{-\infty}^{\infty} (x - \mu)^r f(x) dx$
+
+*Note:* $\mu_1 = 0$ always, and $\mu_2 = Var(X) = \sigma^2$.
+
+---
+
+## Algebraic Conversion Equations
+Using binomial expansions, central moments can be computed from raw moments:
+- $\mu_2 = \mu_2' - (\mu_1')^2$
+- $\mu_3 = \mu_3' - 3\mu_2'\mu_1' + 2(\mu_1')^3$
+- $\mu_4 = \mu_4' - 4\mu_3'\mu_1' + 6\mu_2'(\mu_1')^2 - 3(\mu_1')^4$
+
+---
+
+# Lecture 6: Moment Generating Function (M.G.F)
+
+## Definition and Properties
+The moment generating function of $X$, written as $M_X(t)$, is defined as:
+$$M_X(t) = E[e^{tX}]$$
+For a real variable $t$ existing on an open interval $-h < t < h$ where $h > 0$.
+
+### Maclaurin Expansion Definition
+Expanding $e^{tX}$ as an infinite power series yields:
+$$M_X(t) = E\left[ 1 + tX + \frac{t^2X^2}{2!} + \frac{t^3X^3}{3!} + \dots \right] = 1 + t\mu_1' + \frac{t^2}{2!}\mu_2' + \frac{t^3}{3!}\mu_3' + \dots$$
+
+### Differentiable Moment Generation
+The $r^{\text{th}}$ raw moment corresponds exactly to the $r^{\text{th}}$ derivative of $M_X(t)$ evaluated at zero:
+$$\mu_r' = E(X^r) = \left. \frac{d^r}{dt^r} M_X(t) \right|_{t=0}$$
+
+---
+
+## Example 6.1: M.G.F of an Exponential Distribution
+Let $X \sim \text{Exp}(\lambda)$ with p.d.f $f(x) = \lambda e^{-\lambda x}$ for $x > 0$.
+
+### Deriving $M_X(t)$
+$$M_X(t) = \int_{0}^{\infty} e^{tx} \lambda e^{-\lambda x} dx = \lambda \int_{0}^{\infty} e^{-(\lambda - t)x} dx = \frac{\lambda}{\lambda - t} = \left(1 - \frac{t}{\lambda}\right)^{-1} \quad (\text{for } t < \lambda)$$
+
+### Finding Expected Value and Variance
+Differentiating with respect to $t$:
+$$M_X'(t) = \frac{1}{\lambda}\left(1 - \frac{t}{\lambda}\right)^{-2} \implies E(X) = M_X'(0) = \frac{1}{\lambda}$$
+$$M_X''(t) = \frac{2}{\lambda^2}\left(1 - \frac{t}{\lambda}\right)^{-3} \implies E(X^2) = M_X''(0) = \frac{2}{\lambda^2}$$
+$$Var(X) = E(X^2) - [E(X)]^2 = \frac{2}{\lambda^2} - \frac{1}{\lambda^2} = \frac{1}{\lambda^2}$$
+
+---
+
+# Lecture 7: Special Discrete Distributions
+
+## 1. Discrete Uniform Distribution
+Occurs when a finite pool of values holds an identical probability profile.
+- **p.m.f:** $f(x) = \begin{cases} \frac{1}{N}, & x = 1, 2, \dots, N \\ 0, & \text{otherwise} \end{cases}$
+- **Mean:** $\frac{N + 1}{2}$
+- **Variance:** $\frac{N^2 - 1}{12}$
+- **M.G.F:** $M_X(t) = \frac{e^t(1 - e^{Nt})}{N(1 - e^t)}$
+
+---
+
+## 2. Bernoulli Distribution
+Models a single trial resulting in binary outcomes: Success ($1$) with probability $p$, or Failure ($0$) with probability $q = 1-p$.
+- **p.m.f:** $P(X=x) = \begin{cases} p^x q^{1-x}, & x \in \{0, 1\} \\ 0, & \text{otherwise} \end{cases}$
+- **Mean:** $p$
+- **Variance:** $pq$
+- **M.G.F:** $M_X(t) = q + pe^t$
+
+---
+
+## 3. Binomial Distribution
+Tracks the number of successes across $n$ independent, identically distributed Bernoulli trials.
+- **p.m.f:** $P(X=x) = \begin{cases} \binom{n}{x} p^x q^{n-x}, & x = 0, 1, \dots, n \\ 0, & \text{otherwise} \end{cases}$
+- **Mean:** $np$
+- **Variance:** $npq$
+- **M.G.F:** $M_X(t) = (q + pe^t)^n$
+
+---
+
+## Applied Simulation: Coin Tossing Experiment
+Suppose four fair coins are flipped simultaneously ($n = 4, p = 0.5$). Let $X$ represent the total number of heads. We calculate:
+1. $P(X = 0)$ (No heads)
+2. $P(X = 1)$ (Exactly one head)
+3. $P(X \ge 1)$ (At least one head)
+
+```{r}
+n <- 4
+p <- 0.5
+
+p_0 <- dbinom(0, size = n, prob = p)
+p_1 <- dbinom(1, size = n, prob = p)
+p_at_least_1 <- 1 - dbinom(0, size = n, prob = p)
+
+data.frame(
+  Condition = c("No Heads P(X=0)", "Exactly One Head P(X=1)", "At Least One Head P(X>=1)"),
+  Probability = c(p_0, p_1, p_at_least_1)
+)
+```

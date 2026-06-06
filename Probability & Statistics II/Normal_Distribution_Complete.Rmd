@@ -1,0 +1,916 @@
+---
+title: "The Normal Distribution: Complete Notes"
+author: "Ms. Beryl Angiro"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  fig.width = 8,
+  fig.height = 5
+)
+library(ggplot2)
+```
+
+---
+
+# Introduction to the Normal Distribution
+
+The continuous distribution having the density function
+
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\, e^{-\dfrac{(x-\mu)^2}{2\sigma^2}}, \quad -\infty < x < \infty$$
+
+is called the **normal distribution** or **Gauss distribution**. A random variable having this distribution is said to be **normally distributed**.
+
+This distribution is very important because:
+
+- Many random variables of practical interest are normal or approximately normal.
+- It appears in mathematical proofs of various statistical tests.
+- It is a useful approximation of more complicated distributions (binomial, Poisson).
+
+In the formula above, $\mu$ is the **mean** and $\sigma$ is the **standard deviation**.
+
+We write: $X \sim N(\mu,\, \sigma^2)$, so that $E(X) = \mu$ and $\text{Var}(X) = \sigma^2$.
+
+---
+
+# The Bell Curve
+
+The curve of $f(x)$ is a **bell-shaped curve**, symmetric with respect to $x = \mu$.
+
+- For $\mu > 0$ ($\mu < 0$) the curves have the same shape but are shifted $|\mu|$ units to the right (left).
+- The smaller $\sigma^2$ is, the higher the peak at $x = \mu$ and the steeper the descents on both sides.
+- The distribution function has a **maximum** at $x = \mu$ and **inflection points** at $x = \mu \pm \sigma$.
+
+```{r bell-curve-basic, fig.cap="Bell-shaped normal curve centred at mu = 0, sigma = 1"}
+x <- seq(-4, 4, length.out = 500)
+y <- dnorm(x, mean = 0, sd = 1)
+
+ggplot(data.frame(x, y), aes(x, y)) +
+  geom_line(color = "#2C7BB6", linewidth = 1.2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey40") +
+  geom_vline(xintercept = c(-1, 1), linetype = "dotted", color = "#D7191C") +
+  annotate("text", x = 0.15, y = 0.42, label = "mu == 0", parse = TRUE, size = 4) +
+  annotate("text", x = 1.15, y = 0.25, label = "mu + sigma", size = 3.5, color = "#D7191C") +
+  annotate("text", x = -1.15, y = 0.25, label = "mu - sigma", size = 3.5,
+           color = "#D7191C", hjust = 1) +
+  labs(
+    title = "The Normal (Bell) Curve",
+    subtitle = "X ~ N(0, 1): symmetric, bell-shaped, inflection points at x = mu +/- sigma",
+    x = "x", y = "f(x)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+# Effect of Changing $\mu$ and $\sigma$
+
+## Effect of $\mu$ (location shift)
+
+Changing $\mu$ shifts the curve left or right without changing its shape.
+
+```{r effect-of-mu, fig.cap="Effect of changing mu: same shape, different location"}
+x <- seq(-8, 12, length.out = 600)
+
+df_mu <- data.frame(
+  x = rep(x, 3),
+  y = c(dnorm(x, -2, 1), dnorm(x, 0, 1), dnorm(x, 4, 1)),
+  dist = rep(c("mu = -2", "mu = 0", "mu = 4"), each = length(x))
+)
+
+ggplot(df_mu, aes(x, y, color = dist)) +
+  geom_line(linewidth = 1.1) +
+  scale_color_manual(values = c("#D7191C", "#2C7BB6", "#1A9641")) +
+  labs(
+    title = "Effect of Changing mu (sigma = 1 fixed)",
+    subtitle = "Changing mu shifts the curve left or right",
+    x = "x", y = "f(x)", color = "Distribution"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+## Effect of $\sigma$ (spread)
+
+Changing $\sigma$ affects the height and spread of the curve.
+
+```{r effect-of-sigma, fig.cap="Effect of changing sigma: same centre, different spread"}
+x <- seq(-8, 8, length.out = 600)
+
+df_sigma <- data.frame(
+  x = rep(x, 3),
+  y = c(dnorm(x, 0, 0.5), dnorm(x, 0, 1), dnorm(x, 0, 2)),
+  dist = rep(c("sigma = 0.5", "sigma = 1", "sigma = 2"), each = length(x))
+)
+
+ggplot(df_sigma, aes(x, y, color = dist)) +
+  geom_line(linewidth = 1.1) +
+  scale_color_manual(values = c("#D7191C", "#2C7BB6", "#1A9641")) +
+  labs(
+    title = "Effect of Changing sigma (mu = 0 fixed)",
+    subtitle = "Smaller sigma: taller and narrower; larger sigma: shorter and wider",
+    x = "x", y = "f(x)", color = "Distribution"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+# The Standard Normal Distribution
+
+## Definition
+
+If $\mu = 0$ and $\sigma = 1$, the distribution is called the **standard normal distribution**:
+
+$$f(z) = \frac{1}{\sqrt{2\pi}}\, e^{-z^2/2}, \quad -\infty < z < \infty$$
+
+We write $Z \sim N(0, 1)$.
+
+## Standardisation (Z-transformation)
+
+For any $X \sim N(\mu, \sigma^2)$, the transformation
+
+$$Z = \frac{X - \mu}{\sigma}$$
+
+produces a standard normal variable $Z \sim N(0, 1)$.
+
+**Proof that $E(Z) = 0$ and $\text{Var}(Z) = 1$:**
+
+$$E(Z) = E\!\left(\frac{X-\mu}{\sigma}\right) = \frac{E(X)-\mu}{\sigma} = \frac{\mu - \mu}{\sigma} = 0$$
+
+$$\text{Var}(Z) = \text{Var}\!\left(\frac{X-\mu}{\sigma}\right) = \frac{\text{Var}(X)}{\sigma^2} = \frac{\sigma^2}{\sigma^2} = 1$$
+
+## The Cumulative Distribution Function $\Phi(z)$
+
+$$\Phi(z) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^{z} e^{-t^2/2}\,dt$$
+
+This integral cannot be evaluated in closed form — values are read from **standard normal tables**.
+
+```{r standard-normal-cdf, fig.cap="Standard Normal PDF and CDF"}
+z <- seq(-4, 4, length.out = 500)
+
+par(mfrow = c(1, 2), mar = c(4, 4, 3, 1))
+
+# PDF
+plot(z, dnorm(z), type = "l", lwd = 2, col = "#2C7BB6",
+     main = "Standard Normal PDF", xlab = "z", ylab = "f(z)")
+abline(v = 0, lty = 2, col = "grey50")
+grid()
+
+# CDF
+plot(z, pnorm(z), type = "l", lwd = 2, col = "#D7191C",
+     main = "Standard Normal CDF", xlab = "z", ylab = expression(Phi(z)))
+abline(h = 0.5, lty = 2, col = "grey50")
+abline(v = 0, lty = 2, col = "grey50")
+grid()
+```
+
+## Symmetry Property
+
+Because $f(z)$ is symmetric about $z = 0$:
+
+$$\Phi(-z) = 1 - \Phi(z)$$
+
+```{r symmetry, fig.cap="Symmetry of the standard normal: P(Z < -1) = P(Z > 1)"}
+z <- seq(-4, 4, length.out = 500)
+y <- dnorm(z)
+
+df <- data.frame(z, y)
+
+ggplot(df, aes(z, y)) +
+  geom_line(color = "#2C7BB6", linewidth = 1.2) +
+  geom_area(data = subset(df, z <= -1), aes(z, y), fill = "#D7191C", alpha = 0.5) +
+  geom_area(data = subset(df, z >= 1),  aes(z, y), fill = "#1A9641", alpha = 0.5) +
+  annotate("text", x = -2.2, y = 0.05, label = "P(Z < -1)\n= 0.1587", color = "#D7191C", size = 4) +
+  annotate("text", x =  2.2, y = 0.05, label = "P(Z > 1)\n= 0.1587", color = "#1A9641", size = 4) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed", color = "grey40") +
+  labs(
+    title = "Symmetry Property: Phi(-z) = 1 - Phi(z)",
+    x = "z", y = "f(z)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+# Properties of the Normal Distribution
+
+1. The curve is **bell-shaped** and **symmetric** about $x = \mu$, so:
+$$\Pr(X < \mu) = \Pr(X > \mu) = 0.5$$
+
+2. As $x \to \pm\infty$, $f(x) \to 0$.
+
+3. Since $f(x)$ is a valid p.d.f.:
+$$\int_{-\infty}^{\infty} f(x)\,dx = 1$$
+
+4. The **inflection points** are at $x = \mu \pm \sigma$.
+
+5. Any normal variable can be standardised: if $X \sim N(\mu, \sigma^2)$ then $Z = \frac{X-\mu}{\sigma} \sim N(0,1)$.
+
+## The Empirical Rule (68-95-99.7 Rule)
+
+```{r empirical-rule, fig.cap="The Empirical Rule: areas under the normal curve"}
+x <- seq(-4, 4, length.out = 600)
+y <- dnorm(x)
+df <- data.frame(x, y)
+
+ggplot(df, aes(x, y)) +
+  geom_area(data = subset(df, x >= -3 & x <= 3), aes(x, y), fill = "#ABDDA4", alpha = 0.8) +
+  geom_area(data = subset(df, x >= -2 & x <= 2), aes(x, y), fill = "#66C2A5", alpha = 0.8) +
+  geom_area(data = subset(df, x >= -1 & x <= 1), aes(x, y), fill = "#3288BD", alpha = 0.8) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = c(-3,-2,-1,0,1,2,3), linetype = "dashed", color = "grey40") +
+  annotate("text", x = 0, y = 0.20, label = "68.27%", color = "white", fontface = "bold", size = 4.5) +
+  annotate("text", x = 0, y = 0.08, label = "95.45%", color = "white", fontface = "bold", size = 4.5) +
+  annotate("text", x = 0, y = 0.02, label = "99.73%", color = "black", fontface = "bold", size = 4.5) +
+  scale_x_continuous(
+    breaks = -3:3,
+    labels = c(expression(mu-3*sigma), expression(mu-2*sigma), expression(mu-sigma),
+               expression(mu),
+               expression(mu+sigma), expression(mu+2*sigma), expression(mu+3*sigma))
+  ) +
+  labs(
+    title = "The Empirical Rule (68 - 95 - 99.7)",
+    x = "", y = "f(x)"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+| Interval | Probability |
+|---|---|
+| $\mu \pm \sigma$ | 68.27% |
+| $\mu \pm 2\sigma$ | 95.45% |
+| $\mu \pm 3\sigma$ | 99.73% |
+
+---
+
+# Moment Generating Function, Mean, and Variance
+
+## Moment Generating Function
+
+By definition:
+
+$$M_X(t) = E(e^{tX}) = \int_{-\infty}^{\infty} e^{tx} \cdot \frac{1}{\sqrt{2\pi\sigma^2}}\, e^{-\frac{(x-\mu)^2}{2\sigma^2}}\,dx$$
+
+Completing the square in the exponent:
+
+$$(x-\mu)^2 - 2\sigma^2 t(x-\mu) = [(x-\mu) - \sigma^2 t]^2 - \sigma^4 t^2$$
+
+After simplification (and noting the remaining integral equals 1 since it is the area under a normal density):
+
+$$\boxed{M_X(t) = e^{\mu t + \frac{\sigma^2 t^2}{2}}}$$
+
+## Mean
+
+$$M_X'(t) = \frac{d}{dt}\left[e^{\mu t + \frac{\sigma^2 t^2}{2}}\right] = (\mu + \sigma^2 t)\,e^{\mu t + \frac{\sigma^2 t^2}{2}}$$
+
+At $t = 0$:
+
+$$M_X'(0) = (\mu + 0)\cdot e^0 = \mu$$
+
+$$\boxed{E(X) = \mu}$$
+
+## Variance
+
+Using the product rule on $M_X'(t)$ with $U = \mu + \sigma^2 t$ and $V = e^{\mu t + \frac{\sigma^2 t^2}{2}}$:
+
+$$M_X''(t) = \sigma^2\,e^{\mu t + \frac{\sigma^2 t^2}{2}} + (\mu + \sigma^2 t)^2\,e^{\mu t + \frac{\sigma^2 t^2}{2}}$$
+
+At $t = 0$:
+
+$$M_X''(0) = \sigma^2 + \mu^2$$
+
+$$\text{Var}(X) = M_X''(0) - [M_X'(0)]^2 = (\sigma^2 + \mu^2) - \mu^2$$
+
+$$\boxed{\text{Var}(X) = \sigma^2}$$
+
+---
+
+# The Cumulative Distribution and Probability Calculations
+
+## Key Formula
+
+$$\Pr(a \leq X \leq b) = F(b) - F(a) = \Phi\!\left(\frac{b-\mu}{\sigma}\right) - \Phi\!\left(\frac{a-\mu}{\sigma}\right)$$
+
+## Useful Symmetry Results
+
+$$\Phi(-z) = 1 - \Phi(z)$$
+$$\Pr(X \geq x) = 1 - \Phi\!\left(\frac{x - \mu}{\sigma}\right)$$
+$$\Pr(X < \mu) = \Phi(0) = 0.5$$
+
+---
+
+# Visualising Probability Areas
+
+## $P(Z < z_0)$: Left-tail probability
+
+```{r left-tail, fig.cap="Left-tail probability: P(Z < 1.5)"}
+z <- seq(-4, 4, length.out = 500)
+df <- data.frame(z, y = dnorm(z))
+z0 <- 1.5
+prob <- round(pnorm(z0), 4)
+
+ggplot(df, aes(z, y)) +
+  geom_area(data = subset(df, z <= z0), aes(z, y), fill = "#3288BD", alpha = 0.6) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = z0, linetype = "dashed", color = "#D7191C") +
+  annotate("text", x = -1, y = 0.15,
+           label = paste0("P(Z < ", z0, ") = ", prob),
+           size = 5, color = "#2C7BB6", fontface = "bold") +
+  annotate("text", x = z0 + 0.1, y = 0.42, label = paste0("z = ", z0),
+           color = "#D7191C", size = 4, hjust = 0) +
+  labs(title = "Left-tail Probability: P(Z < 1.5)", x = "z", y = "f(z)") +
+  theme_minimal(base_size = 13)
+```
+
+## $P(Z > z_0)$: Right-tail probability
+
+```{r right-tail, fig.cap="Right-tail probability: P(Z > 1)"}
+z0 <- 1.0
+prob <- round(1 - pnorm(z0), 4)
+
+ggplot(df, aes(z, y)) +
+  geom_area(data = subset(df, z >= z0), aes(z, y), fill = "#D7191C", alpha = 0.6) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = z0, linetype = "dashed") +
+  annotate("text", x = 2.5, y = 0.15,
+           label = paste0("P(Z > ", z0, ") = ", prob),
+           size = 5, color = "#D7191C", fontface = "bold") +
+  labs(title = "Right-tail Probability: P(Z > 1)", x = "z", y = "f(z)") +
+  theme_minimal(base_size = 13)
+```
+
+## $P(a < Z < b)$: Between two values
+
+```{r between, fig.cap="Probability between two z-values: P(-1 < Z < 1)"}
+z_lo <- -1; z_hi <- 1
+prob <- round(pnorm(z_hi) - pnorm(z_lo), 4)
+
+ggplot(df, aes(z, y)) +
+  geom_area(data = subset(df, z >= z_lo & z <= z_hi), aes(z, y),
+            fill = "#1A9641", alpha = 0.6) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = c(z_lo, z_hi), linetype = "dashed", color = "#D7191C") +
+  annotate("text", x = 0, y = 0.15,
+           label = paste0("P(", z_lo, " < Z < ", z_hi, ") = ", prob),
+           size = 5, color = "#1A9641", fontface = "bold") +
+  labs(title = "Between Two Values: P(-1 < Z < 1) = 0.6827", x = "z", y = "f(z)") +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+# Worked Examples
+
+## Example 1: Direct Standard Normal Lookups
+
+For $Z \sim N(0,1)$, determine:
+
+**(a)** $\Pr(Z \leq 2.44)$
+
+**(b)** $\Pr(Z \leq -1.16)$
+
+**(c)** $\Pr(Z \geq 1)$
+
+**(d)** $\Pr(2 \leq Z \leq 10)$
+
+### Solution
+
+**(a)** Read directly from tables: $\Phi(2.44) = \mathbf{0.9927}$
+
+**(b)** $\Phi(-1.16) = 1 - \Phi(1.16) = 1 - 0.8770 = \mathbf{0.1230}$
+
+**(c)** $\Pr(Z \geq 1) = 1 - \Phi(1) = 1 - 0.8413 = \mathbf{0.1587}$
+
+**(d)** $\Pr(2 \leq Z \leq 10) = \Phi(10) - \Phi(2) \approx 1 - 0.9772 = \mathbf{0.0228}$
+
+```{r example1, fig.cap="Example 1(c): P(Z >= 1) = 0.1587"}
+ggplot(df, aes(z, y)) +
+  geom_area(data = subset(df, z >= 1), aes(z, y), fill = "#D7191C", alpha = 0.6) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  annotate("text", x = 2.5, y = 0.12,
+           label = "P(Z >= 1) = 0.1587", size = 5, color = "#D7191C", fontface = "bold") +
+  labs(title = "Example 1(c): P(Z >= 1)", x = "z", y = "f(z)") +
+  theme_minimal(base_size = 13)
+```
+
+```{r example1-verify}
+# Verify using R
+cat("(a) P(Z <= 2.44)  =", pnorm(2.44), "\n")
+cat("(b) P(Z <= -1.16) =", pnorm(-1.16), "\n")
+cat("(c) P(Z >= 1)     =", 1 - pnorm(1), "\n")
+cat("(d) P(2 <= Z <= 10) =", pnorm(10) - pnorm(2), "\n")
+```
+
+---
+
+## Example 2: Finding the Constant $c$
+
+For $Z \sim N(0,1)$, find $c$ such that:
+
+**(a)** $\Pr(Z \geq c) = 10\%$
+
+**(b)** $\Pr(Z \leq c) = 5\%$
+
+**(c)** $\Pr(0 \leq Z \leq c) = 45\%$
+
+**(d)** $\Pr(-c \leq Z \leq c) = 99\%$
+
+### Solution
+
+**(a)** $\Pr(Z \geq c) = 0.10 \Rightarrow \Phi(c) = 0.90 \Rightarrow c = \Phi^{-1}(0.90) = \mathbf{1.282}$
+
+**(b)** $\Phi(c) = 0.05 \Rightarrow c = -\Phi^{-1}(0.95) = \mathbf{-1.645}$
+
+**(c)** $\Phi(c) - \Phi(0) = 0.45 \Rightarrow \Phi(c) = 0.95 \Rightarrow c = \mathbf{1.645}$
+
+**(d)** $\Phi(c) - \Phi(-c) = 0.99 \Rightarrow 2\Phi(c) - 1 = 0.99 \Rightarrow \Phi(c) = 0.995 \Rightarrow c = \mathbf{2.576}$
+
+```{r example2-verify}
+cat("(a) c such that P(Z >= c) = 10%:", qnorm(0.90), "\n")
+cat("(b) c such that P(Z <= c) = 5%:", qnorm(0.05), "\n")
+cat("(c) c such that P(0 <= Z <= c) = 45%:", qnorm(0.95), "\n")
+cat("(d) c such that P(-c <= Z <= c) = 99%:", qnorm(0.995), "\n")
+```
+
+```{r example2-plot, fig.cap="Example 2(d): P(-c <= Z <= c) = 99%, c = 2.576"}
+c_val <- qnorm(0.995)
+
+ggplot(df, aes(z, y)) +
+  geom_area(data = subset(df, z >= -c_val & z <= c_val), aes(z, y),
+            fill = "#3288BD", alpha = 0.5) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = c(-c_val, c_val), linetype = "dashed", color = "#D7191C") +
+  annotate("text", x = 0, y = 0.15,
+           label = "P(-2.576 <= Z <= 2.576) = 99%",
+           size = 4.5, color = "#2C7BB6", fontface = "bold") +
+  annotate("text", x = -c_val - 0.1, y = 0.38,
+           label = paste0("c = -", round(c_val, 3)), color = "#D7191C", size = 3.8, hjust = 1) +
+  annotate("text", x = c_val + 0.1, y = 0.38,
+           label = paste0("c = ", round(c_val, 3)), color = "#D7191C", size = 3.8, hjust = 0) +
+  labs(title = "Example 2(d): Two-sided 99% interval", x = "z", y = "f(z)") +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Example 3: $X \sim N(-2, 0.25)$
+
+Here $\mu = -2$, $\sigma^2 = 0.25$, so $\sigma = 0.5$.
+
+Find:
+
+**(a)** $\Pr(X \geq c) = 0.2$
+
+**(b)** $\Pr(-c \leq X \leq -1) = 0.5$
+
+**(c)** $\Pr(-2-c \leq X \leq -2+c) = 0.9$
+
+**(d)** $\Pr(-2-c \leq X \leq -2+c) = 99.6\%$
+
+### Solution
+
+**(a)**
+$$1 - \Phi\!\left(\frac{c+2}{0.5}\right) = 0.2 \Rightarrow \Phi\!\left(\frac{c+2}{0.5}\right) = 0.8 \Rightarrow \frac{c+2}{0.5} = 0.842 \Rightarrow c = -1.579$$
+
+**(b)**
+$$\Phi\!\left(\frac{-1+2}{0.5}\right) - \Phi\!\left(\frac{-c+2}{0.5}\right) = 0.5$$
+$$\Phi(2) - \Phi\!\left(\frac{-c+2}{0.5}\right) = 0.5 \Rightarrow 0.9772 - \Phi\!\left(\frac{-c+2}{0.5}\right) = 0.5$$
+$$\Phi\!\left(\frac{-c+2}{0.5}\right) = 0.4772 \Rightarrow \frac{-c+2}{0.5} = -0.057 \Rightarrow c = 2.0285$$
+
+**(c)**
+$$\Phi(2c) - \Phi(-2c) = 0.9 \Rightarrow 2\Phi(2c) - 1 = 0.9 \Rightarrow \Phi(2c) = 0.95 \Rightarrow 2c = 1.645 \Rightarrow c = 0.823$$
+
+**(d)**
+$$2\Phi(2c) - 1 = 0.996 \Rightarrow \Phi(2c) = 0.998 \Rightarrow 2c = 2.878 \Rightarrow c = 1.439$$
+
+```{r example3-verify}
+mu <- -2; sigma <- 0.5
+cat("(a) c = ", mu + sigma * qnorm(0.8), "\n")
+cat("(c) c = ", qnorm(0.95) / 2, "\n")
+cat("(d) c = ", qnorm(0.998) / 2, "\n")
+```
+
+```{r example3-plot, fig.cap="Example 3: X ~ N(-2, 0.25), shaded region for part (a)"}
+x_seq <- seq(-4.5, 0.5, length.out = 500)
+df3 <- data.frame(x = x_seq, y = dnorm(x_seq, mean = -2, sd = 0.5))
+c_a <- -2 + 0.5 * qnorm(0.8)
+
+ggplot(df3, aes(x, y)) +
+  geom_area(data = subset(df3, x >= c_a), aes(x, y), fill = "#D7191C", alpha = 0.5) +
+  geom_line(linewidth = 1.2, color = "#2C7BB6") +
+  geom_vline(xintercept = c_a, linetype = "dashed", color = "#D7191C") +
+  geom_vline(xintercept = -2, linetype = "dotted", color = "grey40") +
+  annotate("text", x = c_a + 0.1, y = 0.6, label = paste0("c = ", round(c_a, 3)),
+           color = "#D7191C", size = 4, hjust = 0) +
+  annotate("text", x = -1.2, y = 0.2, label = "P(X >= c) = 0.20",
+           size = 4, color = "#D7191C", fontface = "bold") +
+  labs(title = "Example 3(a): X ~ N(-2, 0.25), P(X >= c) = 0.20",
+       x = "x", y = "f(x)") +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Example 4: Finding $\mu$ and $\sigma$ from Percentile Information
+
+An industrial process mass-produces items which are normally distributed. 11.55% of them weigh **over 20 kg** and 5.89% weigh **under 10 kg**. Find $\mu$ and $\sigma$.
+
+### Solution
+
+**From the upper tail:**
+
+$$\Pr(X > 20) = 0.1155 \Rightarrow \Phi\!\left(\frac{20-\mu}{\sigma}\right) = 0.8845 \Rightarrow \frac{20-\mu}{\sigma} = 1.2$$
+
+$$\mu + 1.2\sigma = 20 \quad \cdots (i)$$
+
+**From the lower tail:**
+
+$$\Pr(X < 10) = 0.0589 \Rightarrow \frac{10-\mu}{\sigma} = -1.56$$
+
+$$\mu - 1.56\sigma = 10 \quad \cdots (ii)$$
+
+**Solving simultaneously:**
+
+Subtract (ii) from (i): $2.76\sigma = 10 \Rightarrow \sigma = 3.623$
+
+Substitute into (i): $\mu = 20 - 1.2(3.623) = 15.652$
+
+$$\boxed{\mu = 15.652 \text{ kg}, \quad \sigma = 3.623 \text{ kg}}$$
+
+```{r example4-verify}
+# Solve simultaneously
+A <- matrix(c(1, 1.2, 1, -1.56), nrow = 2, byrow = TRUE)
+b <- c(20, 10)
+sol <- solve(A, b)
+cat("mu =", round(sol[1], 3), ", sigma =", round(sol[2], 3), "\n")
+```
+
+```{r example4-plot, fig.cap="Example 4: Normal distribution fitted from two percentile constraints"}
+mu4 <- 15.652; sigma4 <- 3.623
+x4 <- seq(mu4 - 4*sigma4, mu4 + 4*sigma4, length.out = 500)
+df4 <- data.frame(x = x4, y = dnorm(x4, mu4, sigma4))
+
+ggplot(df4, aes(x, y)) +
+  geom_area(data = subset(df4, x <= 10), aes(x, y), fill = "#D7191C", alpha = 0.5) +
+  geom_area(data = subset(df4, x >= 20), aes(x, y), fill = "#1A9641", alpha = 0.5) +
+  geom_line(linewidth = 1.2, color = "#2C7BB6") +
+  geom_vline(xintercept = mu4, linetype = "dotted", color = "grey30") +
+  geom_vline(xintercept = c(10, 20), linetype = "dashed", color = "grey50") +
+  annotate("text", x = 7.5, y = 0.03,
+           label = "5.89%\n< 10 kg", color = "#D7191C", size = 4, fontface = "bold") +
+  annotate("text", x = 22.5, y = 0.03,
+           label = "11.55%\n> 20 kg", color = "#1A9641", size = 4, fontface = "bold") +
+  annotate("text", x = mu4, y = 0.115,
+           label = paste0("mu = ", round(mu4, 2)), size = 4, vjust = -0.5) +
+  labs(
+    title = "Example 4: Fitted Normal Distribution",
+    subtitle = paste0("mu = ", round(mu4, 3), ", sigma = ", round(sigma4, 3)),
+    x = "Weight (kg)", y = "f(x)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Example 5: Standard Normal Probabilities with Diagrams
+
+For $Z \sim N(0,1)$, find:
+
+**(a)** $P(Z < 0)$
+
+**(b)** $P(-1 < Z < 1)$
+
+**(c)** $P(Z > 2.54)$
+
+```{r example5-plots, fig.cap="Example 5: Three standard normal probability regions", fig.height=4}
+par(mfrow = c(1, 3), mar = c(4, 3, 3, 1))
+z <- seq(-4, 4, by = 0.01)
+
+# (a) P(Z < 0)
+plot(z, dnorm(z), type = "l", lwd = 2, main = "(a) P(Z < 0) = 0.5",
+     xlab = "z", ylab = "", col = "#2C7BB6")
+z_shade <- seq(-4, 0, by = 0.01)
+polygon(c(-4, z_shade, 0), c(0, dnorm(z_shade), 0), col = "#3288BD55", border = NA)
+abline(v = 0, lty = 2)
+text(0, 0.1, "0.5", cex = 1.2, col = "#2C7BB6", font = 2)
+
+# (b) P(-1 < Z < 1)
+plot(z, dnorm(z), type = "l", lwd = 2, main = "(b) P(-1 < Z < 1) = 0.6827",
+     xlab = "z", ylab = "", col = "#2C7BB6")
+z_shade <- seq(-1, 1, by = 0.01)
+polygon(c(-1, z_shade, 1), c(0, dnorm(z_shade), 0), col = "#1A964155", border = NA)
+abline(v = c(-1, 1), lty = 2)
+text(0, 0.1, "0.6827", cex = 1.1, col = "#1A9641", font = 2)
+
+# (c) P(Z > 2.54)
+plot(z, dnorm(z), type = "l", lwd = 2, main = "(c) P(Z > 2.54) = 0.0055",
+     xlab = "z", ylab = "", col = "#2C7BB6")
+z_shade <- seq(2.54, 4, by = 0.01)
+polygon(c(2.54, z_shade, 4), c(0, dnorm(z_shade), 0), col = "#D7191C55", border = NA)
+abline(v = 2.54, lty = 2)
+text(3, 0.05, "0.0055", cex = 1.0, col = "#D7191C", font = 2)
+```
+
+```{r example5-verify}
+cat("(a) P(Z < 0)        =", pnorm(0), "\n")
+cat("(b) P(-1 < Z < 1)   =", pnorm(1) - pnorm(-1), "\n")
+cat("(c) P(Z > 2.54)     =", 1 - pnorm(2.54), "\n")
+```
+
+---
+
+## Example 6: $X \sim N(9, 9)$ — Find $P(5 < X < 11)$
+
+Here $\mu = 9$, $\sigma^2 = 9$, so $\sigma = 3$.
+
+**Standardise:**
+
+$$Z_1 = \frac{5 - 9}{3} = -1.333, \qquad Z_2 = \frac{11 - 9}{3} = 0.667$$
+
+$$P(5 < X < 11) = \Phi(0.667) - \Phi(-1.333) = 0.7486 - 0.0918 = \mathbf{0.6568}$$
+
+```{r example6-plot, fig.cap="Example 6: P(5 < X < 11) for X ~ N(9, 9)"}
+x6 <- seq(9 - 4*3, 9 + 4*3, length.out = 500)
+df6 <- data.frame(x = x6, y = dnorm(x6, 9, 3))
+
+ggplot(df6, aes(x, y)) +
+  geom_area(data = subset(df6, x > 5 & x < 11), aes(x, y), fill = "#3288BD", alpha = 0.5) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = c(5, 11), linetype = "dashed", color = "#D7191C") +
+  geom_vline(xintercept = 9, linetype = "dotted", color = "grey40") +
+  annotate("text", x = 8, y = 0.06,
+           label = "P(5 < X < 11) = 0.6568",
+           size = 4.5, color = "#2C7BB6", fontface = "bold") +
+  annotate("text", x = 5, y = 0.135, label = "x = 5\n(Z = -1.33)",
+           color = "#D7191C", size = 3.5, hjust = 0.5) +
+  annotate("text", x = 11, y = 0.135, label = "x = 11\n(Z = 0.67)",
+           color = "#D7191C", size = 3.5, hjust = 0.5) +
+  labs(title = "Example 6: X ~ N(9, 9), P(5 < X < 11)",
+       x = "x", y = "f(x)") +
+  theme_minimal(base_size = 13)
+```
+
+```{r example6-verify}
+mu6 <- 9; sigma6 <- 3
+cat("Z1 =", (5 - mu6)/sigma6, "\n")
+cat("Z2 =", (11 - mu6)/sigma6, "\n")
+cat("P(5 < X < 11) =", pnorm(11, mu6, sigma6) - pnorm(5, mu6, sigma6), "\n")
+```
+
+---
+
+## Example 7: $X \sim N(10, \sigma^2)$ with $P(X > 12) = 0.1587$
+
+**Step 1: Find $\sigma$**
+
+$$P(X > 12) = 0.1587 \Rightarrow \frac{12-10}{\sigma} = 1 \Rightarrow \sigma = 2$$
+
+**Step 2: Find $P(9 < X < 11)$**
+
+$$P(9 < X < 11) = P\!\left(\frac{9-10}{2} < Z < \frac{11-10}{2}\right) = P(-0.5 < Z < 0.5)$$
+
+$$= \Phi(0.5) - \Phi(-0.5) = 0.6915 - 0.3085 = \mathbf{0.3830}$$
+
+```{r example7-plot, fig.cap="Example 7: P(9 < X < 11) for X ~ N(10, 4)"}
+x7 <- seq(10 - 4*2, 10 + 4*2, length.out = 500)
+df7 <- data.frame(x = x7, y = dnorm(x7, 10, 2))
+
+ggplot(df7, aes(x, y)) +
+  geom_area(data = subset(df7, x > 9 & x < 11), aes(x, y), fill = "#1A9641", alpha = 0.5) +
+  geom_line(linewidth = 1.2, color = "black") +
+  geom_vline(xintercept = c(9, 11), linetype = "dashed", color = "#D7191C") +
+  annotate("text", x = 10, y = 0.08,
+           label = "P(9 < X < 11) = 0.3830",
+           size = 4.5, color = "#1A9641", fontface = "bold") +
+  labs(title = "Example 7: X ~ N(10, 4), P(9 < X < 11)",
+       x = "x", y = "f(x)") +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Example 8: Job Time $X \sim N(55, 100)$
+
+$\mu = 55$ minutes, $\sigma = 10$ minutes.
+
+**(i)** $P(X > 75)$
+
+$$Z = \frac{75-55}{10} = 2 \Rightarrow P(Z > 2) = 1 - 0.9772 = \mathbf{0.0228}$$
+
+**(ii)** $P(X < 60)$
+
+$$Z = \frac{60-55}{10} = 0.5 \Rightarrow P(Z < 0.5) = \mathbf{0.6915}$$
+
+**(iii)** $P(45 < X < 60)$
+
+$$Z_1 = \frac{45-55}{10} = -1, \quad Z_2 = 0.5$$
+
+$$P(-1 < Z < 0.5) = 0.6915 - 0.1587 = \mathbf{0.5328}$$
+
+```{r example8-plot, fig.cap="Example 8: Three probability regions for X ~ N(55, 100)", fig.height=4}
+x8 <- seq(55 - 4*10, 55 + 4*10, length.out = 500)
+y8 <- dnorm(x8, 55, 10)
+df8 <- data.frame(x = x8, y = y8)
+
+par(mfrow = c(1, 3), mar = c(4, 3, 3, 1))
+
+# (i) P(X > 75)
+plot(x8, y8, type = "l", lwd = 2, col = "#2C7BB6",
+     main = "(i) P(X > 75) = 0.0228", xlab = "x", ylab = "")
+x_s <- x8[x8 >= 75]
+polygon(c(75, x_s, max(x8)), c(0, dnorm(x_s, 55, 10), 0),
+        col = "#D7191C55", border = NA)
+abline(v = 75, lty = 2)
+
+# (ii) P(X < 60)
+plot(x8, y8, type = "l", lwd = 2, col = "#2C7BB6",
+     main = "(ii) P(X < 60) = 0.6915", xlab = "x", ylab = "")
+x_s <- x8[x8 <= 60]
+polygon(c(min(x8), x_s, 60), c(0, dnorm(x_s, 55, 10), 0),
+        col = "#3288BD55", border = NA)
+abline(v = 60, lty = 2)
+
+# (iii) P(45 < X < 60)
+plot(x8, y8, type = "l", lwd = 2, col = "#2C7BB6",
+     main = "(iii) P(45 < X < 60) = 0.5328", xlab = "x", ylab = "")
+x_s <- x8[x8 >= 45 & x8 <= 60]
+polygon(c(45, x_s, 60), c(0, dnorm(x_s, 55, 10), 0),
+        col = "#1A964155", border = NA)
+abline(v = c(45, 60), lty = 2)
+```
+
+```{r example8-verify}
+cat("(i)   P(X > 75)        =", 1 - pnorm(75, 55, 10), "\n")
+cat("(ii)  P(X < 60)        =", pnorm(60, 55, 10), "\n")
+cat("(iii) P(45 < X < 60)   =", pnorm(60, 55, 10) - pnorm(45, 55, 10), "\n")
+```
+
+---
+
+# Normal Approximation to Other Distributions
+
+## Normal Approximation to the Binomial
+
+If $X \sim \text{Bin}(n, p)$ and $n$ is large, then $X$ is approximately $N(\mu, \sigma^2)$ where:
+
+$$\mu = np, \qquad \sigma^2 = npq = np(1-p)$$
+
+**Conditions for use:**
+
+- $p \leq 0.5$: use when $np > 5$
+- $p > 0.5$: use when $n(1-p) > 5$
+
+```{r normal-approx-binomial, fig.cap="Normal approximation to Bin(50, 0.4)"}
+set.seed(42)
+n_b <- 50; p_b <- 0.4
+mu_b <- n_b * p_b; sigma_b <- sqrt(n_b * p_b * (1 - p_b))
+
+x_bin <- 0:n_b
+pmf_bin <- dbinom(x_bin, n_b, p_b)
+
+x_norm <- seq(mu_b - 4*sigma_b, mu_b + 4*sigma_b, length.out = 400)
+pdf_norm <- dnorm(x_norm, mu_b, sigma_b)
+
+df_bin <- data.frame(x = x_bin, y = pmf_bin)
+df_norm_approx <- data.frame(x = x_norm, y = pdf_norm)
+
+ggplot() +
+  geom_col(data = df_bin, aes(x, y), fill = "#ABDDA4", color = "grey60", width = 0.8) +
+  geom_line(data = df_norm_approx, aes(x, y), color = "#D7191C", linewidth = 1.3) +
+  labs(
+    title = "Normal Approximation to Bin(50, 0.4)",
+    subtitle = paste0("mu = np = ", mu_b, ",  sigma = sqrt(npq) = ", round(sigma_b, 3)),
+    x = "x", y = "Probability / Density"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+## Normal Approximation to the Poisson
+
+If $X \sim \text{Po}(\lambda)$ and $\lambda$ is large, then $X$ is approximately $N(\lambda, \lambda)$.
+
+```{r normal-approx-poisson, fig.cap="Normal approximation to Po(20)"}
+lambda_p <- 20
+x_poi <- 0:45
+pmf_poi <- dpois(x_poi, lambda_p)
+
+x_np <- seq(0, 45, length.out = 400)
+pdf_np <- dnorm(x_np, lambda_p, sqrt(lambda_p))
+
+ggplot() +
+  geom_col(data = data.frame(x = x_poi, y = pmf_poi),
+           aes(x, y), fill = "#ABD9E9", color = "grey60", width = 0.8) +
+  geom_line(data = data.frame(x = x_np, y = pdf_np),
+            aes(x, y), color = "#D7191C", linewidth = 1.3) +
+  labs(
+    title = "Normal Approximation to Po(20)",
+    subtitle = "mu = lambda = 20,  sigma = sqrt(lambda) = 4.47",
+    x = "x", y = "Probability / Density"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+# Standard Normal MGF — Proof
+
+For $Z \sim N(0,1)$:
+
+$$M_Z(t) = \int_{-\infty}^{\infty} e^{tz} \cdot \frac{1}{\sqrt{2\pi}}\, e^{-z^2/2}\,dz$$
+
+Combine exponents:
+
+$$tz - \frac{z^2}{2} = -\frac{1}{2}(z^2 - 2tz) = -\frac{1}{2}[(z-t)^2 - t^2] = \frac{t^2}{2} - \frac{(z-t)^2}{2}$$
+
+Therefore:
+
+$$M_Z(t) = e^{t^2/2} \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi}}\,e^{-(z-t)^2/2}\,dz = e^{t^2/2} \cdot 1$$
+
+$$\boxed{M_Z(t) = e^{t^2/2}}$$
+
+**Using the MGF to find mean and variance:**
+
+$$M_Z'(t) = t\,e^{t^2/2} \Rightarrow M_Z'(0) = 0 \Rightarrow E(Z) = 0$$
+
+$$M_Z''(t) = e^{t^2/2} + t^2 e^{t^2/2} = (1 + t^2)e^{t^2/2} \Rightarrow M_Z''(0) = 1$$
+
+$$\text{Var}(Z) = 1 - 0^2 = 1$$
+
+---
+
+# Exercises
+
+**1.** Let $X \sim N(80, 9)$. Find:
+
+(a) $\Pr(X > 83)$ **[0.1587]**
+(b) $\Pr(X < 81)$ **[0.6306]**
+(c) $\Pr(X < 80)$ **[0.5]**
+(d) $\Pr(78 \leq X < 82)$ **[0.4950]**
+
+**2.** Let $X \sim N(14, 4)$. Find constant $c$ such that:
+
+(a) $\Pr(X \leq c) = 95\%$ **[17.29]**
+(b) $\Pr(X \leq c) = 5\%$ **[-17.29]** *(Note: this should be interpreted as finding c for P(X<=c)=5% using the N(14,4) distribution)*
+(c) $\Pr(-c \leq X \leq c) = 99\%$ **[19.152]**
+
+**3.** The lifetime $X$ of a certain automobile battery is $N(4, 1)$ years. If the manufacturer guarantees the battery for 3 years, what percentage must be replaced?  **[16%]**
+
+**4.** Airmail envelope weights: $X \sim N(1.950,\; 0.025^2)$ g. In 1000 envelopes, about how many weigh over 2 g? **[About 22]**
+
+**5.** Bolt diameters follow $X \sim N(0.279,\; 0.001^2)$ cm. Specification: $0.280 \pm 0.002$ cm. What percentage of bolts meets specifications? **[84%]**
+
+**6.** Bolt lengths are normally distributed. Bolts outside $[2.983,\; 3.021]$ inches are rejected.
+   (i) From $N = 300$ with $\bar{x} = 3.007$, $s = 0.011$: expected $n_1 = 4.4$ (too short), $n_2 = 30.6$ (too long).
+   (ii) From $N = 600$ with $n_1 = 20$ and $n_2 = 15$: estimate $\hat{\mu} = 3.001$, $\hat{\sigma} = 0.01$.
+
+**7.** For $Z \sim N(0,1)$, show that $M_Z(t) = e^{t^2/2}$. Use the MGF to show $E(Z) = 0$ and $\text{Var}(Z) = 1$.
+
+```{r exercises-verify}
+# Exercise 1 verification
+cat("--- Exercise 1: X ~ N(80, 9), sigma = 3 ---\n")
+cat("(a) P(X > 83) =", 1 - pnorm(83, 80, 3), "\n")
+cat("(b) P(X < 81) =", pnorm(81, 80, 3), "\n")
+cat("(c) P(X < 80) =", pnorm(80, 80, 3), "\n")
+cat("(d) P(78 <= X < 82) =", pnorm(82, 80, 3) - pnorm(78, 80, 3), "\n\n")
+
+# Exercise 2 verification
+cat("--- Exercise 2: X ~ N(14, 4), sigma = 2 ---\n")
+cat("(a) c for P(X <= c) = 95%:", qnorm(0.95, 14, 2), "\n")
+cat("(b) c for P(X <= c) = 5% :", qnorm(0.05, 14, 2), "\n\n")
+
+# Exercise 3
+cat("--- Exercise 3: X ~ N(4, 1), guarantee 3 years ---\n")
+cat("P(X < 3) =", pnorm(3, 4, 1), "=>", round(pnorm(3, 4, 1)*100, 1), "%\n\n")
+
+# Exercise 4
+cat("--- Exercise 4: X ~ N(1.950, 0.025^2) ---\n")
+cat("P(X > 2) =", 1 - pnorm(2, 1.950, 0.025),
+    "=> approx", round((1 - pnorm(2, 1.950, 0.025)) * 1000), "in 1000\n\n")
+
+# Exercise 5
+cat("--- Exercise 5: X ~ N(0.279, 0.001^2) ---\n")
+cat("P(0.278 <= X <= 0.282) =",
+    pnorm(0.282, 0.279, 0.001) - pnorm(0.278, 0.279, 0.001), "\n")
+```
+
+---
+
+*End of Normal Distribution Notes*

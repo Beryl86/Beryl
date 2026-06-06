@@ -1,0 +1,575 @@
+---
+title: "Probability and Statistics I"
+subtitle: "Lectures 3–6: Measures of Location, Expectation, Moments & MGF"
+author: "Ms. Beryl Ang'iro"
+institute: "Department of Mathematics, Statistics & Actuarial Science"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(ggplot2)
+```
+
+---
+
+# Lecture 3: Measures of Location
+
+## Quantiles
+
+The $p^{th}$ **quantile** of a random variable $X$, denoted $\xi_p$, is the value such that:
+
+$$\Pr(X \leq \xi_p) \geq p \quad \text{and} \quad \Pr(X \geq \xi_p) \geq 1 - p$$
+
+In particular, the **median** is the $0.5^{th}$ quantile, denoted $\xi_{0.5}$.
+
+### Percentiles
+
+Let $0 < p < 1$. The $100p^{th}$ percentile (quantile of order $p$) of the distribution of $X$ is a value $\xi_p$ such that:
+
+$$\Pr(X \leq \xi_p) \geq p \quad \text{and} \quad \Pr(X \geq \xi_p) \geq 1 - p$$
+
+---
+
+## Median
+
+The median lies halfway through the distribution, splitting the area under the curve into two equal halves.
+
+**Continuous Random Variable:** If $X$ is continuous with pdf $f(x)$ on $(-\infty, \infty)$, the median $M$ satisfies:
+
+$$\int_{-\infty}^{M} f(x)\,dx = \int_{M}^{\infty} f(x)\,dx = \frac{1}{2}$$
+
+or equivalently $F(M) = \frac{1}{2}$, where $F(x)$ is the CDF.
+
+**Discrete Random Variable:** If $X$ is discrete with PMF $p_X(x)$ and values $x_1, x_2, \ldots, x_n$, the median $M$ satisfies:
+
+$$\sum_{x=x_1}^{M} p_X(x) \geq \frac{1}{2} \quad \text{and} \quad \sum_{x=M}^{x_n} p_X(x) \geq \frac{1}{2}$$
+
+### Example 1: Median and 25th Percentile
+
+Find the median and 25th percentile of:
+
+$$f(x) = \begin{cases} 3(1-x)^2, & 0 < x < 1 \\ 0, & \text{elsewhere} \end{cases}$$
+
+**Solution — Median:**
+
+Let the median be $M$. Setting $\int_0^M 3(1-x)^2\,dx = \frac{1}{2}$ and substituting $z = 1-x$:
+
+$$-(1-M)^3 + 1 = \frac{1}{2} \implies (1-M)^3 = \frac{1}{2}$$
+
+$$\boxed{M = 1 - \sqrt[3]{\frac{1}{2}}}$$
+
+**Solution — 25th Percentile:**
+
+Let $P$ be the 25th percentile. Setting $\int_0^P 3(1-x)^2\,dx = \frac{1}{4}$:
+
+$$(1-P)^3 = \frac{3}{4} \implies \boxed{P = 1 - \sqrt[3]{\frac{3}{4}}}$$
+
+```{r ex1-plot, fig.cap="PDF f(x) = 3(1-x)^2 with median shaded"}
+x <- seq(0, 1, length.out = 300)
+fx <- 3 * (1 - x)^2
+M <- 1 - (1/2)^(1/3)
+
+df <- data.frame(x = x, fx = fx)
+df_shade <- df[df$x <= M, ]
+
+ggplot(df, aes(x, fx)) +
+  geom_area(data = df_shade, aes(x, fx), fill = "#3B8BD4", alpha = 0.3) +
+  geom_line(linewidth = 1, color = "#185FA5") +
+  geom_vline(xintercept = M, linetype = "dashed", color = "#D85A30") +
+  annotate("text", x = M + 0.05, y = 2, label = paste0("M = ", round(M, 3)),
+           color = "#D85A30", size = 4) +
+  labs(title = "PDF with Median Highlighted",
+       x = "x", y = "f(x)") +
+  theme_minimal()
+```
+
+---
+
+### Example 2: Median of a Discrete Distribution
+
+Given $p = \frac{1}{4}$, find the median of:
+
+$$P_X(x) = \begin{cases} p(1-p)^x, & x = 0, 1, 2, \ldots \\ 0, & \text{elsewhere} \end{cases}$$
+
+**Solution:**
+
+```{r ex2-discrete-median}
+p <- 1/4
+x_vals <- 0:6
+pmf <- p * (1 - p)^x_vals
+cdf <- cumsum(pmf)
+
+results <- data.frame(x = x_vals, PMF = round(pmf, 4), CDF = round(cdf, 4))
+knitr::kable(results, caption = "PMF and CDF for Example 2")
+```
+
+From the CDF: $F(2) = `r round(cdf[3], 4)` \geq 0.5$, so the **median is $M = 2$**.
+
+---
+
+### Example 3: Finding k, Median, and IQR
+
+$$f(x) = \begin{cases} \frac{k}{\sqrt{x}}, & 1 \leq x \leq 9 \\ 0, & \text{otherwise} \end{cases}$$
+
+**(i) Finding $k$:**
+
+$$\int_1^9 \frac{k}{\sqrt{x}}\,dx = k[\ln x]_1^9 = k\ln 9 = 1 \implies k = \frac{1}{\ln 9} \approx 0.4551$$
+
+**(ii) Median:**
+
+The CDF is $F(x) = \frac{\ln x}{\ln 9}$. Setting $F(m) = \frac{1}{2}$:
+
+$$\frac{\ln m}{\ln 9} = \frac{1}{2} \implies m = 9^{1/2} = 3$$
+
+**(iii) Interquartile Range:**
+
+$$Q_1: F(q_1) = \frac{1}{4} \implies q_1 = 9^{1/4} \approx 1.732$$
+
+$$Q_3: F(q_3) = \frac{3}{4} \implies q_3 = 9^{3/4} \approx 5.196$$
+
+$$\text{IQR} = q_3 - q_1 \approx 5.196 - 1.732 = 3.464$$
+
+```{r ex3-iqr}
+k <- 1 / log(9)
+q1 <- 9^(1/4); q3 <- 9^(3/4); iqr <- q3 - q1
+cat(sprintf("k = %.4f\nMedian = 3\nQ1 = %.3f, Q3 = %.3f\nIQR = %.3f\n",
+            k, q1, q3, iqr))
+```
+
+---
+
+## Mode
+
+**Definition:** The mode of a distribution is the value $x$ that maximises the PDF or PMF.
+
+For a continuous random variable, differentiate the PDF:
+
+- Set $f'(x) = 0$
+- If $f''(x) < 0$ at $x = x_1$ $\Rightarrow$ local maximum (mode)
+- Check higher derivatives if needed
+
+### Example 4: Mode of a Discrete Distribution
+
+$$P_X(x) = \begin{cases} \left(\frac{1}{2}\right)^x, & x = 1, 2, 3, \ldots \\ 0, & \text{otherwise} \end{cases}$$
+
+By observation, the maximum probability occurs at $x = 1$, so **Mode = 1**.
+
+### Example 5: Mode of a Continuous Distribution
+
+$$f(x) = \begin{cases} \frac{1}{2}x^2 e^{-x}, & 0 < x < \infty \\ 0, & \text{otherwise} \end{cases}$$
+
+**Solution:**
+
+$$f'(x) = \frac{1}{2}e^{-x}(2x - x^2) = 0 \implies x = 2$$
+
+$$f''(2) = -0.1353 < 0 \implies \textbf{Mode} = 2$$
+
+### Example 6: Mode of $f(x) = 12x^2(1-x)$
+
+$$f(x) = \begin{cases} 12x^2(1-x), & 0 < x < 1 \\ 0, & \text{otherwise} \end{cases}$$
+
+$$f'(x) = 24x - 36x^2 = 12x(2 - 3x) = 0 \implies x = 0 \text{ or } x = \frac{2}{3}$$
+
+$f''(2/3) < 0$, so **Mode = $\frac{2}{3}$**.
+
+### Example 7: Piecewise PDF — CDF, Median, and Mode
+
+$$f(x) = \begin{cases} cx, & 0 \leq x \leq 1 \\ c(2-x), & 1 \leq x \leq 2 \\ 0, & \text{otherwise} \end{cases}$$
+
+**Step 1: Find $c$.**
+
+$$\int_0^1 cx\,dx + \int_1^2 c(2-x)\,dx = \frac{c}{2} + \frac{c}{2} = 1 \implies c = 1$$
+
+**Step 2: CDF.**
+
+$$F(x) = \begin{cases} 0, & x < 0 \\ \dfrac{x^2}{2}, & 0 \leq x \leq 1 \\[6pt] 2x - \dfrac{x^2}{2} - 1, & 1 \leq x \leq 2 \\ 1, & x \geq 2 \end{cases}$$
+
+**Median:** $F(1) = \frac{1}{2}$, so $m = 1$.
+
+**Mode:** $f(x) = x$ increases on $[0,1]$ and $f(x) = 2-x$ decreases on $[1,2]$, so maximum is at $x = 1$. **Mode = 1**.
+
+---
+
+**Exercise:** For $f(x) = \frac{3}{64}x^2(4-x)$, $0 \leq x \leq 4$, determine the mode.
+
+---
+
+# Lecture 4: Expectation of a Random Variable
+
+## Definition
+
+**Expectation** gives the average (mean) value of a random variable.
+
+- **Discrete:** $E(X) = \displaystyle\sum_{i=1}^n x_i P(X = x_i)$
+
+- **Continuous:** $E(X) = \displaystyle\int_{-\infty}^{\infty} x f(x)\,dx$
+
+---
+
+## Examples
+
+### Example 1: Fair Die
+
+$$E(X) = \sum_{x=1}^{6} x \cdot \frac{1}{6} = \frac{1+2+3+4+5+6}{6} = \frac{21}{6} = 3.5$$
+
+### Example 2: Discrete PMF
+
+$$P(X = x) = \frac{x}{21}, \quad x = 1, 2, 3, 4, 5, 6$$
+
+$$E(X) = \sum_{x=1}^{6} x \cdot \frac{x}{21} = \frac{1^2 + 2^2 + \cdots + 6^2}{21} = \frac{91}{21} \approx 4.333$$
+
+### Example 3: Continuous Case
+
+$$f(x) = \frac{1}{9}(3-x)(1+x), \quad 0 \leq x \leq 3$$
+
+$$E(X) = \frac{1}{9}\int_0^3 x(3-x)(1+x)\,dx = \frac{1}{9}\int_0^3 (3x + 3x^2 - x^3 - x^4)\,dx = \frac{5}{4} = 1.25$$
+
+```{r ex3-expectation}
+integrand <- function(x) x * (1/9) * (3 - x) * (1 + x)
+result <- integrate(integrand, 0, 3)
+cat("E(X) =", result$value)
+```
+
+---
+
+## Properties of Expectation
+
+Let $g(X) = aX + b$ with constants $a, b, c$:
+
+1. $E(c) = c$
+2. $E[aX + b] = aE(X) + b$
+3. $E[ag(X) \pm bh(X)] = aE[g(X)] \pm bE[h(X)]$
+
+**Proof of (2):**
+
+$$E[aX + b] = \int_{-\infty}^{\infty}(aX + b)f(x)\,dx = a\int_{-\infty}^{\infty}xf(x)\,dx + b\int_{-\infty}^{\infty}f(x)\,dx = aE(X) + b$$
+
+### Example 4: Expectation of Functions
+
+$$P(X = x) = \frac{x}{10}, \quad x = 1, 2, 3, 4$$
+
+Compute $E[5X^3 - 2X^2]$:
+
+$$E[5X^3 - 2X^2] = 5E(X^3) - 2E(X^2)$$
+
+```{r ex4-functions}
+x <- 1:4; p <- x / 10
+E_X2 <- sum(x^2 * p)
+E_X3 <- sum(x^3 * p)
+result <- 5 * E_X3 - 2 * E_X2
+cat(sprintf("E(X^2) = %.1f\nE(X^3) = %.1f\nE[5X^3 - 2X^2] = %.1f\n",
+            E_X2, E_X3, result))
+```
+
+---
+
+## Variance of a Random Variable
+
+$$\text{Var}(X) = E\left[(X - E(X))^2\right] = E(X^2) - [E(X)]^2$$
+
+**Notation:** Mean $\mu = E(X)$; Variance $\sigma^2 = \text{Var}(X)$; Standard deviation $\sigma = \sqrt{\text{Var}(X)}$.
+
+### Variance of Linear Functions
+
+$$\text{Var}(aX) = a^2\text{Var}(X)$$
+$$\text{Var}(aX + b) = a^2\text{Var}(X)$$
+
+**Proof of $\text{Var}(aX + b) = a^2\text{Var}(X)$:**
+
+$$\text{Var}(aX + b) = E[(aX+b)^2] - [E(aX+b)]^2$$
+$$= a^2E(X^2) + 2abE(X) + b^2 - [aE(X) + b]^2$$
+$$= a^2\left[E(X^2) - (E(X))^2\right] = a^2\text{Var}(X)$$
+
+### Example 5: Variance of a Continuous Variable
+
+$$f(x) = \frac{x+3}{18}, \quad -3 \leq x \leq 3$$
+
+```{r ex5-variance}
+E_X  <- integrate(function(x) x * (x + 3) / 18, -3, 3)$value
+E_X2 <- integrate(function(x) x^2 * (x + 3) / 18, -3, 3)$value
+VarX <- E_X2 - E_X^2
+cat(sprintf("E(X) = %.4f\nE(X^2) = %.4f\nVar(X) = %.4f\n", E_X, E_X2, VarX))
+```
+
+### Example 6: Piecewise PDF
+
+$$f(x) = \begin{cases} kx, & 0 \leq x \leq 1 \\ k, & 1 \leq x \leq 3 \\ k(4-x), & 3 \leq x \leq 4 \\ 0, & \text{otherwise} \end{cases}$$
+
+**Finding $k$:**
+
+$$k\int_0^1 x\,dx + k\int_1^3 dx + k\int_3^4(4-x)\,dx = k\left(\frac{1}{2} + 2 + \frac{1}{2}\right) = 3k = 1 \implies k = \frac{1}{3}$$
+
+**Finding $E(X)$:**
+
+$$E(X) = \frac{1}{3}\int_0^1 x^2\,dx + \frac{1}{3}\int_1^3 x\,dx + \frac{1}{3}\int_3^4 x(4-x)\,dx = 2$$
+
+### Example 7: Piecewise PDF with Quantile
+
+$$f(x) = \begin{cases} \frac{c}{3}x, & 0 \leq x \leq 3 \\ c, & 3 \leq x \leq 4 \\ 0, & \text{otherwise} \end{cases}$$
+
+**Finding $c$:** $\frac{3}{2}c + c = \frac{5}{2}c = 1 \implies c = \frac{2}{5}$
+
+**$E(X) = \frac{13}{5} = 2.6$**
+
+**Finding $a$ such that $P(X \geq a) = 0.85$:**
+
+Since $P(0 \leq X \leq 3) = 0.40$, the value $a$ lies in $[3, 4]$:
+
+$$\int_a^4 \frac{2}{5}\,dx = 0.85 - P(X > 4) \implies \frac{2}{5}(4 - a) = 0.85 - 0.40 = 0.45 \implies a = 5.125$$
+
+> **Note:** The solution in the lecture notes sets $\int_3^a \frac{2}{5}dx = 0.85 - P(0 \le X \le 3)$, giving $a = 5.125$.
+
+### Example 8: Cell Battery Lifetime
+
+$$f(x) = \begin{cases} \frac{3}{4}\left[1 - (x-2)^2\right], & 1 \leq x \leq 3 \\ 0, & \text{otherwise} \end{cases}$$
+
+**(i) $E(X)$:**
+
+$$E(X) = \frac{3}{4}\int_1^3 x\left[1 - (x-2)^2\right]dx = 2$$
+
+**(ii) Probability radio works for at least 22 hours (two independent cells, each $\geq 2.2$ tens of hours):**
+
+$$P(X \geq 2.2) = \frac{3}{4}\int_{2.2}^{3}\left[1 - (x-2)^2\right]dx \approx 0.352$$
+
+$$P(\text{both cells}) = (0.352)^2 \approx 0.1239$$
+
+```{r ex8-battery}
+f8 <- function(x) (3/4) * (1 - (x - 2)^2)
+p_22 <- integrate(f8, 2.2, 3)$value
+cat(sprintf("P(X >= 2.2) = %.4f\nP(both cells) = %.4f\n", p_22, p_22^2))
+```
+
+### Example 9: Electric Bulb Lifetime
+
+$$f(x) = \begin{cases} \frac{6}{125}x(5-x), & 0 \leq x \leq 5 \\ 0, & \text{otherwise} \end{cases}$$
+
+```{r ex9-bulbs}
+f9 <- function(x) (6/125) * x * (5 - x)
+
+# Probability neither bulb fails in the first year
+p_fail1 <- integrate(f9, 0, 1)$value
+p_surv1 <- 1 - p_fail1
+p_neither <- p_surv1^2
+
+# Probability exactly one bulb fails within 2 years
+p_fail2 <- integrate(f9, 0, 2)$value
+p_surv2 <- 1 - p_fail2
+p_exactly_one <- 2 * p_fail2 * p_surv2
+
+cat(sprintf("P(fail in year 1) = %.4f\nP(neither fails in year 1) = %.4f\n", p_fail1, p_neither))
+cat(sprintf("P(fail within 2 years) = %.4f\nP(exactly one fails in 2 years) = %.4f\n", p_fail2, p_exactly_one))
+```
+
+---
+
+**Exercise:** Two dice are tossed. Let $Y = |X_1 - X_2|$. Compute $\text{Var}(Y)$.
+
+---
+
+# Lecture 5: Moments of a Random Variable
+
+## Definition
+
+Moments are expectations of powers of a random variable and characterise properties of the distribution.
+
+## Raw Moments (About the Origin)
+
+The $r^{th}$ **raw moment** of $X$, denoted $\mu'_r$, is:
+
+$$\mu'_r = E(X^r), \quad r = 1, 2, \ldots$$
+
+## Central Moments (About the Mean)
+
+If $a = E(X) = \mu$, the $r^{th}$ **central moment** is:
+
+$$\mu_r = E\left[(X - \mu)^r\right]$$
+
+### Formulas
+
+**Discrete:**
+
+$$\mu'_r = \sum_x x^r P(X = x), \qquad \mu_r = \sum_x (x - \mu)^r P(X = x)$$
+
+**Continuous:**
+
+$$\mu'_r = \int_{-\infty}^{\infty} x^r f(x)\,dx, \qquad \mu_r = \int_{-\infty}^{\infty} (x - \mu)^r f(x)\,dx$$
+
+---
+
+## Remarks
+
+| Moment | Result |
+|--------|--------|
+| $\mu'_1 = E(X^1)$ | Mean of $X$ |
+| $\mu_1 = E[(X-\mu)^1]$ | Always $= 0$ |
+| $\mu_2 = E[(X-\mu)^2]$ | Variance of $X$ |
+
+---
+
+## Relationships Between Raw and Central Moments
+
+**Second central moment:**
+
+$$\mu_2 = \mu'_2 - (\mu'_1)^2$$
+
+**Third central moment:**
+
+$$\mu_3 = \mu'_3 - 3\mu'_1\mu'_2 + 2(\mu'_1)^3$$
+
+**Fourth central moment (exercise):**
+
+$$\mu_4 = \mu'_4 - 4\mu'_3\mu'_1 + 6\mu'_2(\mu'_1)^2 - 3(\mu'_1)^4$$
+
+---
+
+## Factorial Moments
+
+The $r^{th}$ **factorial moment** of $X$ is:
+
+$$\mu_{[r]} = E[X(X-1)(X-2)\cdots(X-r+1)]$$
+
+The first factorial moment is always the mean: $\mu_{[1]} = E(X)$.
+
+### Example 13: Factorial Moments of a Fair Die
+
+```{r factorial-moments}
+x <- 1:6; p <- rep(1/6, 6)
+
+mu1 <- sum(x * p)
+mu2 <- sum(x * (x - 1) * p)
+mu3 <- sum(x * (x - 1) * (x - 2) * p)
+
+df_fact <- data.frame(
+  x = x,
+  Prob = p,
+  `x(x-1)` = x * (x - 1),
+  `x(x-1)(x-2)` = x * (x - 1) * (x - 2),
+  check.names = FALSE
+)
+knitr::kable(df_fact, caption = "Factorial moment calculations for a fair die")
+
+cat(sprintf("\n1st Factorial Moment E(X)         = %.4f\n", mu1))
+cat(sprintf("2nd Factorial Moment E[X(X-1)]     = %.4f\n", mu2))
+cat(sprintf("3rd Factorial Moment E[X(X-1)(X-2)]= %.4f\n", mu3))
+```
+
+---
+
+# Lecture 6: Moment Generating Function (MGF)
+
+## Introduction
+
+Computing all moments directly can be tedious. The **moment generating function (MGF)** generates all moments from a single function. It is unique to each distribution, allowing identification of the distribution from its MGF.
+
+## Definition
+
+Let $X$ be a random variable. The MGF, denoted $M_X(t)$, is:
+
+$$M_X(t) = E\left[e^{tX}\right], \quad -h < t < h, \quad h > 0$$
+
+**Discrete:**
+
+$$M_X(t) = \sum_{\text{all } x} e^{tx} P(X = x)$$
+
+**Continuous:**
+
+$$M_X(t) = \int_{-\infty}^{\infty} e^{tx} f(x)\,dx$$
+
+---
+
+## Deriving Moments from the MGF
+
+Using the Taylor expansion $e^{tx} = 1 + tx + \frac{t^2 x^2}{2!} + \frac{t^3 x^3}{3!} + \cdots$ and differentiating $M_X(t)$ with respect to $t$:
+
+$$M'_X(t)\Big|_{t=0} = E(X) = \mu'_1$$
+
+$$M''_X(t)\Big|_{t=0} = E(X^2) = \mu'_2$$
+
+**General result:** The $r^{th}$ raw moment is obtained by differentiating the MGF $r$ times and setting $t = 0$:
+
+$$\mu'_r = E(X^r) = M_X^{(r)}(t)\Big|_{t=0}$$
+
+---
+
+## Example: Exponential Distribution
+
+$$f(x) = \begin{cases} \lambda e^{-\lambda x}, & x > 0 \\ 0, & \text{elsewhere} \end{cases}$$
+
+### (a) Finding the MGF
+
+$$M_X(t) = \int_0^{\infty} e^{tx} \cdot \lambda e^{-\lambda x}\,dx = \lambda \int_0^{\infty} e^{-(\lambda - t)x}\,dx = \frac{\lambda}{\lambda - t}, \quad t < \lambda$$
+
+### (b) Mean and Variance from the MGF
+
+$$M'_X(t) = \lambda(\lambda - t)^{-2}$$
+
+$$E(X) = M'_X(0) = \frac{\lambda}{\lambda^2} = \frac{1}{\lambda}$$
+
+$$M''_X(t) = 2\lambda(\lambda - t)^{-3}$$
+
+$$E(X^2) = M''_X(0) = \frac{2}{\lambda^2}$$
+
+$$\text{Var}(X) = E(X^2) - [E(X)]^2 = \frac{2}{\lambda^2} - \frac{1}{\lambda^2} = \frac{1}{\lambda^2}$$
+
+### (c) Verification (Direct Calculation)
+
+```{r mgf-exponential, fig.cap="MGF-derived vs direct E(X) and Var(X) for Exponential distribution"}
+lambda_vals <- c(0.5, 1, 2, 5)
+
+results <- lapply(lambda_vals, function(lam) {
+  # Direct integration
+  EX  <- integrate(function(x) x * lam * exp(-lam * x), 0, Inf)$value
+  EX2 <- integrate(function(x) x^2 * lam * exp(-lam * x), 0, Inf)$value
+  data.frame(
+    Lambda    = lam,
+    `E(X) formula` = round(1 / lam, 4),
+    `E(X) direct`  = round(EX, 4),
+    `Var(X) formula` = round(1 / lam^2, 4),
+    `Var(X) direct`  = round(EX2 - EX^2, 4),
+    check.names = FALSE
+  )
+})
+
+knitr::kable(do.call(rbind, results),
+             caption = "Verification: MGF formula vs direct integration for Exponential distribution")
+```
+
+```{r mgf-plot, fig.cap="Exponential PDF for various lambda values"}
+x_seq <- seq(0, 5, length.out = 300)
+df_exp <- do.call(rbind, lapply(lambda_vals, function(lam) {
+  data.frame(x = x_seq, fx = lam * exp(-lam * x_seq), lambda = factor(lam))
+}))
+
+ggplot(df_exp, aes(x, fx, color = lambda)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Exponential PDF for Various λ",
+       x = "x", y = "f(x)", color = "λ") +
+  theme_minimal()
+```
+
+---
+
+## Summary Table
+
+| Concept | Formula |
+|---------|---------|
+| Raw moment | $\mu'_r = E(X^r)$ |
+| Central moment | $\mu_r = E[(X - \mu)^r]$ |
+| MGF | $M_X(t) = E[e^{tX}]$ |
+| Mean from MGF | $E(X) = M'_X(0)$ |
+| Variance from MGF | $\text{Var}(X) = M''_X(0) - [M'_X(0)]^2$ |
+| $\mu_2 = \sigma^2$ | $\mu'_2 - (\mu'_1)^2$ |
+| $\mu_3$ | $\mu'_3 - 3\mu'_1\mu'_2 + 2(\mu'_1)^3$ |
+
+---
+
+*End of Lectures 3–6 | Probability and Statistics I*
